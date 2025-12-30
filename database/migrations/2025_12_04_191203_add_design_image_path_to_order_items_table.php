@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('order_items', function (Blueprint $table) {
-            $table->string('design_image_path')->nullable(); // file path in storage
-            
+            if (!Schema::hasColumn('order_items', 'design_image_path')) {
+                $table->string('design_image_path')->nullable(); // file path in storage
+            }
         });
     }
 
