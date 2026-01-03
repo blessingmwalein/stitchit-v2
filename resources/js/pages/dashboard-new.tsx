@@ -10,41 +10,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-interface DashboardProps {
-    stats: {
-        total_clients: number;
-        active_orders: number;
-        in_production: number;
-        low_stock_items: number;
-        client_trend: number;
-        order_trend: number;
-    };
-    recent_orders: Array<{
-        id: number;
-        reference: string;
-        client_name: string;
-        state: string;
-        total_amount: number;
-        created_at: string;
-    }>;
-    recent_production: Array<{
-        id: number;
-        reference: string;
-        client_name: string;
-        state: string;
-        progress: number;
-    }>;
-    low_stock: Array<{
-        id: number;
-        name: string;
-        sku: string;
-        current_stock: number;
-        reorder_point: number;
-        unit: string;
-    }>;
-}
-
-export default function Dashboard({ stats, recent_orders, recent_production, low_stock }: DashboardProps) {
+export default function Dashboard() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard - Stitchit ERP" />
@@ -70,26 +36,20 @@ export default function Dashboard({ stats, recent_orders, recent_production, low
 
                 {/* Stats Grid - Modern card design */}
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    {/* Stat Card 1 - Total Clients */}
+                    {/* Stat Card 1 - Employee */}
                     <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md">
                         <div className="flex items-start justify-between">
                             <div className="space-y-2">
                                 <p className="text-sm font-medium text-muted-foreground">
-                                    Total Clients
+                                    Total Employees
                                 </p>
                                 <p className="text-4xl font-bold tracking-tight text-foreground">
-                                    {stats.total_clients}
+                                    78
                                 </p>
                                 <div className="flex items-center gap-1.5 text-xs">
-                                    {stats.client_trend !== 0 && (
-                                        <span className={`rounded-md px-2 py-0.5 font-semibold ${
-                                            stats.client_trend > 0 
-                                                ? 'bg-green-50 text-green-700' 
-                                                : 'bg-red-50 text-red-700'
-                                        }`}>
-                                            {stats.client_trend > 0 ? '+' : ''}{stats.client_trend}%
-                                        </span>
-                                    )}
+                                    <span className="rounded-md bg-green-50 px-2 py-0.5 font-semibold text-green-700">
+                                        +12%
+                                    </span>
                                     <span className="text-muted-foreground">vs last month</span>
                                 </div>
                             </div>
@@ -101,7 +61,7 @@ export default function Dashboard({ stats, recent_orders, recent_production, low
                         </div>
                     </div>
 
-                    {/* Stat Card 2 - Active Orders */}
+                    {/* Stat Card 2 - Hirings */}
                     <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md">
                         <div className="flex items-start justify-between">
                             <div className="space-y-2">
@@ -109,19 +69,13 @@ export default function Dashboard({ stats, recent_orders, recent_production, low
                                     Active Orders
                                 </p>
                                 <p className="text-4xl font-bold tracking-tight text-foreground">
-                                    {stats.active_orders}
+                                    56
                                 </p>
                                 <div className="flex items-center gap-1.5 text-xs">
-                                    {stats.order_trend !== 0 && (
-                                        <span className={`rounded-md px-2 py-0.5 font-semibold ${
-                                            stats.order_trend > 0 
-                                                ? 'bg-green-50 text-green-700' 
-                                                : 'bg-red-50 text-red-700'
-                                        }`}>
-                                            {stats.order_trend > 0 ? '+' : ''}{stats.order_trend}%
-                                        </span>
-                                    )}
-                                    <span className="text-muted-foreground">from last month</span>
+                                    <span className="rounded-md bg-green-50 px-2 py-0.5 font-semibold text-green-700">
+                                        +8%
+                                    </span>
+                                    <span className="text-muted-foreground">from last week</span>
                                 </div>
                             </div>
                             <div className="rounded-xl bg-green-50 p-3">
@@ -132,7 +86,7 @@ export default function Dashboard({ stats, recent_orders, recent_production, low
                         </div>
                     </div>
 
-                    {/* Stat Card 3 - In Production */}
+                    {/* Stat Card 3 - Projects */}
                     <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md">
                         <div className="flex items-start justify-between">
                             <div className="space-y-2">
@@ -140,12 +94,13 @@ export default function Dashboard({ stats, recent_orders, recent_production, low
                                     In Production
                                 </p>
                                 <p className="text-4xl font-bold tracking-tight text-foreground">
-                                    {stats.in_production}
+                                    203
                                 </p>
                                 <div className="flex items-center gap-1.5 text-xs">
                                     <span className="rounded-md bg-amber-50 px-2 py-0.5 font-semibold text-amber-700">
-                                        Active jobs
+                                        +5 new
                                     </span>
+                                    <span className="text-muted-foreground">this week</span>
                                 </div>
                             </div>
                             <div className="rounded-xl bg-accent/10 p-3">
@@ -156,7 +111,7 @@ export default function Dashboard({ stats, recent_orders, recent_production, low
                         </div>
                     </div>
 
-                    {/* Stat Card 4 - Low Stock Alert */}
+                    {/* Stat Card 4 - Revenue */}
                     <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md">
                         <div className="flex items-start justify-between">
                             <div className="space-y-2">
@@ -164,11 +119,11 @@ export default function Dashboard({ stats, recent_orders, recent_production, low
                                     Low Stock Alert
                                 </p>
                                 <p className="text-4xl font-bold tracking-tight text-foreground">
-                                    {stats.low_stock_items}
+                                    12
                                 </p>
                                 <div className="flex items-center gap-1.5 text-xs">
                                     <span className="rounded-md bg-red-50 px-2 py-0.5 font-semibold text-red-700">
-                                        {stats.low_stock_items > 0 ? 'Needs attention' : 'All good'}
+                                        Needs attention
                                     </span>
                                 </div>
                             </div>
@@ -185,67 +140,43 @@ export default function Dashboard({ stats, recent_orders, recent_production, low
                 <div className="grid gap-6 lg:grid-cols-3">
                     {/* Left Column - 2/3 width */}
                     <div className="space-y-6 lg:col-span-2">
-                        {/* Production Progress Widget */}
+                        {/* Progress Widget */}
                         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
                             <div className="mb-6 flex items-center justify-between">
                                 <div>
-                                    <h2 className="text-lg font-semibold text-foreground">Production Jobs</h2>
-                                    <p className="text-sm text-muted-foreground">{stats.in_production} jobs in progress</p>
+                                    <h2 className="text-lg font-semibold text-foreground">Production Progress</h2>
+                                    <p className="text-sm text-muted-foreground">Weekly work time overview</p>
                                 </div>
-                                <Link href="/admin/production" className="text-sm font-medium text-accent hover:underline">
-                                    View all
-                                </Link>
+                                <div className="text-right">
+                                    <p className="text-3xl font-bold text-foreground">6.1h</p>
+                                    <p className="text-xs text-muted-foreground">Work Time this week</p>
+                                </div>
                             </div>
                             
-                            {/* Production Jobs List */}
-                            <div className="space-y-3">
-                                {recent_production.length > 0 ? (
-                                    recent_production.map((job) => (
-                                        <Link
-                                            key={job.id}
-                                            href={`/admin/production/${job.id}`}
-                                            className="block rounded-lg border border-border bg-background p-4 transition-all hover:border-accent hover:bg-accent/5"
-                                        >
-                                            <div className="flex items-start justify-between mb-3">
-                                                <div>
-                                                    <p className="font-semibold text-foreground">{job.reference}</p>
-                                                    <p className="text-sm text-muted-foreground">{job.client_name}</p>
-                                                </div>
-                                                <span className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                                                    job.state === 'completed' ? 'bg-green-50 text-green-700' :
-                                                    job.state === 'in_progress' ? 'bg-blue-50 text-blue-700' :
-                                                    'bg-gray-50 text-gray-700'
-                                                }`}>
-                                                    {job.state.replace('_', ' ')}
-                                                </span>
+                            {/* Bar Chart Placeholder */}
+                            <div className="flex h-48 items-end justify-between gap-3">
+                                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => {
+                                    const heights = [40, 60, 50, 70, 85, 45, 30];
+                                    const isToday = idx === 4;
+                                    return (
+                                        <div key={day} className="flex flex-1 flex-col items-center gap-2">
+                                            <div className="relative w-full">
+                                                {isToday && (
+                                                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-lg bg-accent px-2 py-1 text-xs font-semibold text-foreground">
+                                                        5h 24m
+                                                    </div>
+                                                )}
+                                                <div
+                                                    className={`w-full rounded-lg transition-all ${
+                                                        isToday ? 'bg-accent' : 'bg-muted'
+                                                    }`}
+                                                    style={{ height: `${heights[idx]}%` }}
+                                                ></div>
                                             </div>
-                                            
-                                            {/* Progress Bar */}
-                                            <div className="space-y-1.5">
-                                                <div className="flex items-center justify-between text-xs">
-                                                    <span className="text-muted-foreground">Progress</span>
-                                                    <span className="font-semibold text-foreground">{job.progress}%</span>
-                                                </div>
-                                                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                                                    <div 
-                                                        className="h-full rounded-full bg-accent transition-all"
-                                                        style={{ width: `${job.progress}%` }}
-                                                    ></div>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <div className="rounded-lg bg-muted p-8 text-center">
-                                        <svg className="mx-auto h-12 w-12 text-muted-foreground mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                        </svg>
-                                        <p className="text-sm font-medium text-muted-foreground">No production jobs yet</p>
-                                        <Link href="/admin/production/create" className="mt-2 inline-block text-sm font-medium text-accent hover:underline">
-                                            Create your first job
-                                        </Link>
-                                    </div>
-                                )}
+                                            <span className="text-xs font-medium text-muted-foreground">{day}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -323,87 +254,124 @@ export default function Dashboard({ stats, recent_orders, recent_production, low
 
                     {/* Right Column - 1/3 width */}
                     <div className="space-y-6">
-                        {/* Recent Orders Widget */}
+                        {/* Time Tracker Widget */}
                         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
                             <div className="mb-4 flex items-center justify-between">
-                                <h3 className="text-base font-semibold text-foreground">Recent Orders</h3>
-                                <Link href="/admin/orders" className="text-xs font-medium text-accent hover:underline">
-                                    View all
-                                </Link>
+                                <h3 className="text-base font-semibold text-foreground">Time Tracker</h3>
+                                <button className="rounded-lg p-1.5 hover:bg-muted">
+                                    <svg className="h-4 w-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                                    </svg>
+                                </button>
                             </div>
                             
-                            <div className="space-y-3">
-                                {recent_orders.length > 0 ? (
-                                    recent_orders.map((order) => (
-                                        <Link 
-                                            key={order.id}
-                                            href={`/admin/orders/${order.id}`}
-                                            className="flex items-center gap-3 rounded-lg bg-background p-3 transition-colors hover:bg-accent/5"
-                                        >
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
-                                                <svg className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-foreground truncate">{order.reference}</p>
-                                                <p className="text-xs text-muted-foreground truncate">{order.client_name}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-sm font-semibold text-foreground">${order.total_amount}</p>
-                                                <p className="text-xs text-muted-foreground">{order.created_at}</p>
-                                            </div>
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <div className="rounded-lg bg-muted p-4 text-center">
-                                        <p className="text-sm text-muted-foreground">No recent orders</p>
-                                    </div>
-                                )}
+                            {/* Circular Progress */}
+                            <div className="relative mx-auto flex h-48 w-48 items-center justify-center">
+                                <svg className="h-full w-full -rotate-90 transform">
+                                    <circle
+                                        cx="96"
+                                        cy="96"
+                                        r="88"
+                                        stroke="currentColor"
+                                        strokeWidth="12"
+                                        fill="none"
+                                        className="text-muted"
+                                    />
+                                    <circle
+                                        cx="96"
+                                        cy="96"
+                                        r="88"
+                                        stroke="currentColor"
+                                        strokeWidth="12"
+                                        fill="none"
+                                        strokeDasharray={2 * Math.PI * 88}
+                                        strokeDashoffset={2 * Math.PI * 88 * (1 - 0.65)}
+                                        className="text-accent transition-all"
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
+                                <div className="absolute text-center">
+                                    <p className="text-3xl font-bold text-foreground">02:35</p>
+                                    <p className="text-xs text-muted-foreground">Work Time</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 flex gap-2">
+                                <button className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-foreground/90">
+                                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M8 5v14l11-7z" />
+                                    </svg>
+                                    Start
+                                </button>
+                                <button className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-muted">
+                                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+                                    </svg>
+                                    Pause
+                                </button>
                             </div>
                         </div>
 
-                        {/* Low Stock Items */}
+                        {/* Onboarding Tasks */}
                         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
                             <div className="mb-4 flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-base font-semibold text-foreground">Low Stock Items</h3>
-                                    <p className="text-xs text-muted-foreground">{stats.low_stock_items} items need reordering</p>
+                                    <h3 className="text-base font-semibold text-foreground">Onboarding</h3>
+                                    <p className="text-xs text-muted-foreground">18% Complete</p>
                                 </div>
-                                <Link href="/admin/inventory/needs-reorder" className="text-xs font-medium text-accent hover:underline">
-                                    View all
-                                </Link>
+                                <span className="text-sm font-bold text-foreground">2/8</span>
                             </div>
 
-                            {/* Stock List */}
+                            {/* Progress Bar */}
+                            <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-muted">
+                                <div className="h-full w-[18%] rounded-full bg-accent transition-all"></div>
+                            </div>
+
+                            {/* Task List */}
                             <div className="space-y-3">
-                                {low_stock.length > 0 ? (
-                                    low_stock.slice(0, 5).map((item) => (
-                                        <Link
-                                            key={item.id}
-                                            href={`/admin/inventory/${item.id}`}
-                                            className="flex items-center gap-3 rounded-lg bg-background p-3 transition-colors hover:bg-accent/5"
-                                        >
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
-                                                <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                                </svg>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
-                                                <p className="text-xs text-muted-foreground">{item.sku}</p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-sm font-semibold text-red-600">{item.current_stock} {item.unit}</p>
-                                                <p className="text-xs text-muted-foreground">Min: {item.reorder_point}</p>
-                                            </div>
-                                        </Link>
-                                    ))
-                                ) : (
-                                    <div className="rounded-lg bg-green-50 p-4 text-center">
-                                        <p className="text-sm font-medium text-green-700">All stock levels are healthy!</p>
+                                <div className="flex items-center gap-3 rounded-lg bg-background p-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
+                                        <svg className="h-4 w-4 text-foreground" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg>
                                     </div>
-                                )}
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-foreground">Interview</p>
+                                        <p className="text-xs text-muted-foreground">Sep 13, 10:30</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3 rounded-lg bg-background p-3">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent">
+                                        <svg className="h-4 w-4 text-foreground" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                                        </svg>
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-foreground">Teams Meeting</p>
+                                        <p className="text-xs text-muted-foreground">Sep 13, 10:15</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3 rounded-lg bg-background p-3 opacity-50">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-muted">
+                                        <span className="text-xs font-bold text-muted-foreground">3</span>
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-foreground">Project Update</p>
+                                        <p className="text-xs text-muted-foreground">Sep 13, 15:00</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3 rounded-lg bg-background p-3 opacity-50">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-lg border-2 border-muted">
+                                        <span className="text-xs font-bold text-muted-foreground">4</span>
+                                    </div>
+                                    <div className="flex-1">
+                                        <p className="text-sm font-medium text-foreground">HR Policy Review</p>
+                                        <p className="text-xs text-muted-foreground">Sep 13, 16:30</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

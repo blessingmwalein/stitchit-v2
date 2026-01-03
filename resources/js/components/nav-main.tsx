@@ -22,8 +22,10 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
     const page = usePage();
     return (
         <SidebarGroup className="px-2 py-0">
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
-            <SidebarMenu>
+            <SidebarGroupLabel className="px-2 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Platform
+            </SidebarGroupLabel>
+            <SidebarMenu className="gap-1">
                 {items.map((item) => {
                     // Item with sub-items
                     if (item.items && item.items.length > 0) {

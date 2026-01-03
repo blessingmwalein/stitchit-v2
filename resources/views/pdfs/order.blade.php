@@ -475,7 +475,7 @@
     <!-- Footer -->
     <div class="footer">
         <p><strong>Thank you for choosing Stitchit Tufting!</strong></p>
-        <p style="margin-top: 5px;">For inquiries, please contact us at info@stitchittufting.com</p>
+        <p style="margin-top: 5px;">For inquiries, please contact us at stichiitt@gmail.com</p>
         <p style="margin-top: 10px; font-size: 10px;">
             Document generated on {{ \Carbon\Carbon::now()->format('F d, Y \a\t g:i A') }}
         </p>
