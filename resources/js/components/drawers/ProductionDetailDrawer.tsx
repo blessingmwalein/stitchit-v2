@@ -46,6 +46,10 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { AddMaterialModal } from '@/components/modals/AddMaterialModal';
+import { CompleteJobModal } from '@/components/modals/CompleteJobModal';
+import { EstimateMaterialsModal } from '@/components/modals/EstimateMaterialsModal';
+import { CreateFinishedProductModal } from '@/components/modals/CreateFinishedProductModal';
+import { EditFinishedProductModal } from '@/components/modals/EditFinishedProductModal';
 
 interface MaterialConsumption {
   id: number;
@@ -60,6 +64,22 @@ interface MaterialConsumption {
   waste_quantity: number;
   unit_cost: number;
   total_cost: number;
+}
+
+interface FinishedProduct {
+  id: number;
+  reference: string;
+  product_name: string;
+  description?: string;
+  quality_status: string;
+  quality_notes?: string;
+  storage_location?: string;
+  status: string;
+  primary_image?: string;
+  images?: string[];
+  is_published: boolean;
+  published_at?: string;
+  notes?: string;
 }
 
 interface ProductionJob {
@@ -99,6 +119,7 @@ interface ProductionJob {
     name: string;
   };
   material_consumptions?: MaterialConsumption[];
+  finished_product?: FinishedProduct;
 }
 
 interface Props {
@@ -118,6 +139,10 @@ export function ProductionDetailDrawer({ open, onClose, jobId }: Props) {
   const [pendingTransition, setPendingTransition] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [showEstimateModal, setShowEstimateModal] = useState(false);
+  const [showCreateFinishedProductModal, setShowCreateFinishedProductModal] = useState(false);
+  const [showEditFinishedProductModal, setShowEditFinishedProductModal] = useState(false);
 
   useEffect(() => {
     if (open && jobId) {
@@ -138,8 +163,13 @@ export function ProductionDetailDrawer({ open, onClose, jobId }: Props) {
   };
 
   const handleTransition = (newState: string) => {
-    setPendingTransition(newState);
-    setShowTransitionDialog(true);
+    // If transitioning to COMPLETED, show the completion modal
+    if (newState === 'COMPLETED') {
+      setShowCompleteModal(true);
+    } else {
+      setPendingTransition(newState);
+      setShowTransitionDialog(true);
+    }
   };
 
   const confirmTransition = async () => {
@@ -168,6 +198,27 @@ export function ProductionDetailDrawer({ open, onClose, jobId }: Props) {
       setPendingTransition(null);
     }
   };
+
+  const handleTogglePublish = async () => {
+    if (!job?.finished_product) return;
+
+    try {
+      await axios.post(`/admin/finished-products/${job.finished_product.id}/publish`);
+      await fetchJobDetails();
+      toast({
+        title: 'Success',
+        description: job.finished_product.is_published ? 'Product unpublished' : 'Product published',
+      });
+    } catch (error: any) {
+      console.error('Error toggling publish status:', error);
+      toast({
+        title: 'Error',
+        description: error.response?.data?.message || 'Failed to update publish status',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleSaveMaterial = async (consumptionId: number) => {
     const values = materialValues[consumptionId];
     if (!values) return;
@@ -268,7 +319,7 @@ export function ProductionDetailDrawer({ open, onClose, jobId }: Props) {
             </SheetHeader>
 
             <Tabs defaultValue="details" className="flex-1 flex flex-col overflow-hidden">
-              <TabsList className="mx-6 mt-4 grid w-full grid-cols-3 bg-transparent h-auto p-0 border-b flex-shrink-0">
+              <TabsList className="mx-6 mt-4 grid w-full grid-cols-4 bg-transparent h-auto p-0 border-b flex-shrink-0">
                 <TabsTrigger 
                   value="details" 
                   className="flex items-center justify-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3"
@@ -289,6 +340,13 @@ export function ProductionDetailDrawer({ open, onClose, jobId }: Props) {
                 >
                   <CheckCircle className="h-4 w-4" />
                   <span>Actual</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="finished" 
+                  className="flex items-center justify-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none pb-3"
+                >
+                  <Package className="h-4 w-4" />
+                  <span>Finished Product</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -460,8 +518,13 @@ export function ProductionDetailDrawer({ open, onClose, jobId }: Props) {
                     <div className="text-center py-12">
                       <TrendingUp className="h-12 w-12 mx-auto mb-3 text-muted-foreground opacity-50" />
                       <p className="text-sm text-muted-foreground">No materials estimated yet</p>
-                      <Button variant="outline" size="sm" className="mt-4">
-                        + Estimate Materials
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="mt-4"
+                        onClick={() => setShowEstimateModal(true)}
+                      >
+                        + Estimate Materials from Recipe
                       </Button>
                     </div>
                   ) : (
@@ -631,6 +694,140 @@ export function ProductionDetailDrawer({ open, onClose, jobId }: Props) {
                   )}
                 </div>
               </TabsContent>
+
+              {/* Finished Product Tab */}
+              <TabsContent value="finished" className="flex-1 overflow-y-auto px-6 pb-6 mt-4 space-y-6">
+                {job.finished_product ? (
+                  <>
+                    {/* Product Header */}
+                    <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="font-semibold text-lg">{job.finished_product.product_name}</h3>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={job.finished_product.is_published ? "default" : "secondary"}>
+                            {job.finished_product.is_published ? "Published" : "Draft"}
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setShowEditFinishedProductModal(true)}
+                          >
+                            <Edit2 className="h-3 w-3 mr-2" />
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={job.finished_product.is_published ? "secondary" : "default"}
+                            onClick={handleTogglePublish}
+                          >
+                            {job.finished_product.is_published ? "Unpublish" : "Publish"}
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{job.finished_product.reference}</p>
+                    </div>
+
+                    {/* Primary Image */}
+                    {job.finished_product.primary_image && (
+                      <div className="border rounded-lg overflow-hidden">
+                        <img
+                          src={job.finished_product.primary_image}
+                          alt={job.finished_product.product_name}
+                          className="w-full h-96 object-cover"
+                        />
+                      </div>
+                    )}
+
+                    {/* Description */}
+                    {job.finished_product.description && (
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-semibold mb-2">Description</h4>
+                        <p className="text-sm text-muted-foreground">{job.finished_product.description}</p>
+                      </div>
+                    )}
+
+                    {/* Additional Images */}
+                    {job.finished_product.images && job.finished_product.images.length > 0 && (
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-semibold mb-3">Additional Images</h4>
+                        <div className="grid grid-cols-3 gap-4">
+                          {job.finished_product.images.map((image, index) => (
+                            <img
+                              key={index}
+                              src={image}
+                              alt={`Additional ${index + 1}`}
+                              className="w-full h-48 object-cover rounded-lg"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Product Details */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-semibold mb-3">Quality</h4>
+                        <div className="space-y-2">
+                          <div>
+                            <p className="text-sm text-muted-foreground">Status</p>
+                            <Badge variant={
+                              job.finished_product.quality_status === 'PASSED' ? 'default' :
+                              job.finished_product.quality_status === 'NEEDS_REWORK' ? 'secondary' : 'destructive'
+                            }>
+                              {job.finished_product.quality_status}
+                            </Badge>
+                          </div>
+                          {job.finished_product.quality_notes && (
+                            <div>
+                              <p className="text-sm text-muted-foreground">Notes</p>
+                              <p className="text-sm">{job.finished_product.quality_notes}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-semibold mb-3">Storage & Status</h4>
+                        <div className="space-y-2">
+                          {job.finished_product.storage_location && (
+                            <div>
+                              <p className="text-sm text-muted-foreground">Location</p>
+                              <p className="text-sm font-medium">{job.finished_product.storage_location}</p>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-sm text-muted-foreground">Status</p>
+                            <Badge variant="outline">{job.finished_product.status}</Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Notes */}
+                    {job.finished_product.notes && (
+                      <div className="border rounded-lg p-4">
+                        <h4 className="font-semibold mb-2">Notes</h4>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">{job.finished_product.notes}</p>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-12">
+                    <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+                    <h3 className="text-lg font-semibold mb-2">No Finished Product Yet</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Create a finished product entry to document the completed item
+                    </p>
+                    <Button 
+                      onClick={() => setShowCreateFinishedProductModal(true)}
+                      className="gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Create Finished Product
+                    </Button>
+                  </div>
+                )}
+              </TabsContent>
             </Tabs>
           </div>
         ) : null}
@@ -647,6 +844,55 @@ export function ProductionDetailDrawer({ open, onClose, jobId }: Props) {
             length: job.order_item.height,
             width: job.order_item.width
           } : undefined}
+        />
+      )}
+
+      {/* Complete Job Modal */}
+      {jobId && job && (
+        <CompleteJobModal
+          open={showCompleteModal}
+          onClose={() => setShowCompleteModal(false)}
+          jobId={jobId}
+          jobReference={job.reference}
+          onSuccess={() => {
+            fetchJobDetails();
+            onClose();
+          }}
+        />
+      )}
+
+      {/* Estimate Materials Modal */}
+      {jobId && job && (
+        <EstimateMaterialsModal
+          open={showEstimateModal}
+          onClose={() => setShowEstimateModal(false)}
+          jobId={jobId}
+          jobDimensions={{
+            width: job.order_item.width,
+            height: job.order_item.height,
+          }}
+          onSuccess={fetchJobDetails}
+        />
+      )}
+
+      {/* Create Finished Product Modal */}
+      {jobId && job && (
+        <CreateFinishedProductModal
+          open={showCreateFinishedProductModal}
+          onClose={() => setShowCreateFinishedProductModal(false)}
+          jobId={jobId}
+          jobReference={job.reference}
+          onSuccess={fetchJobDetails}
+        />
+      )}
+
+      {/* Edit Finished Product Modal */}
+      {jobId && job && job.finished_product && (
+        <EditFinishedProductModal
+          open={showEditFinishedProductModal}
+          onClose={() => setShowEditFinishedProductModal(false)}
+          product={job.finished_product}
+          onSuccess={fetchJobDetails}
         />
       )}
 

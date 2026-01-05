@@ -147,7 +147,7 @@ export default function ProductionIndex() {
           variant="ghost"
           size="icon"
           onClick={(e) => handleEdit(row, e)}
-          className="h-8 w-8 rounded-full"
+          className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-sm"
         >
           <Edit className="h-4 w-4" />
         </Button>
@@ -171,7 +171,7 @@ export default function ProductionIndex() {
               </p>
             </div>
             <Link href="/admin/production/create">
-              <Button>
+              <Button className="rounded-full">
                 <svg
                   className="w-4 h-4 mr-2"
                   fill="none"
@@ -215,6 +215,7 @@ export default function ProductionIndex() {
             <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
+              className="rounded-full"
               onClick={() => setViewMode('list')}
             >
               <LayoutList className="h-4 w-4 mr-2" />
@@ -223,6 +224,7 @@ export default function ProductionIndex() {
             <Button
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="sm"
+              className="rounded-full"
               onClick={() => setViewMode('grid')}
             >
               <LayoutGrid className="h-4 w-4 mr-2" />
@@ -231,6 +233,7 @@ export default function ProductionIndex() {
             <Button
               variant={viewMode === 'kanban' ? 'default' : 'outline'}
               size="sm"
+              className="rounded-full"
               onClick={() => setViewMode('kanban')}
             >
               <KanbanSquare className="h-4 w-4 mr-2" />
@@ -238,207 +241,210 @@ export default function ProductionIndex() {
             </Button>
           </div>
 
-          {items.length === 0 && !loading ? (
-            <EmptyState
-              icon={EmptyIcons.Clipboard}
-              title="No production jobs yet"
-              description="Create production jobs from approved orders."
-              action={{
-                label: 'Create Production Job',
-                onClick: () => (window.location.href = '/admin/production/create'),
-              }}
-            />
-          ) : (
-            <>
-              {/* List View */}
-              {viewMode === 'list' && (
-                <>
-                  <DataTable
-                    data={items}
-                    columns={columns}
-                    loading={loading}
-                    onRowClick={handleJobClick}
-                    sortable={true}
-                    sortField={sortField}
-                    sortDirection={sortDirection}
-                    onSort={handleSort}
-                  />
-                  <Pagination
-                    currentPage={pagination.current_page}
-                    lastPage={pagination.last_page}
-                    total={pagination.total}
-                    perPage={pagination.per_page}
-                    onPageChange={handlePageChange}
-                  />
-                </>
-              )}
+          {/* Content Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            {items.length === 0 && !loading ? (
+              <EmptyState
+                icon={EmptyIcons.Clipboard}
+                title="No production jobs yet"
+                description="Create production jobs from approved orders."
+                action={{
+                  label: 'Create Production Job',
+                  onClick: () => (window.location.href = '/admin/production/create'),
+                }}
+              />
+            ) : (
+              <>
+                {/* List View */}
+                {viewMode === 'list' && (
+                  <>
+                    <DataTable
+                      data={items}
+                      columns={columns}
+                      loading={loading}
+                      onRowClick={handleJobClick}
+                      sortable={true}
+                      sortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    />
+                    <Pagination
+                      currentPage={pagination.current_page}
+                      lastPage={pagination.last_page}
+                      total={pagination.total}
+                      perPage={pagination.per_page}
+                      onPageChange={handlePageChange}
+                    />
+                  </>
+                )}
 
-              {/* Grid View */}
-              {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {items.map((job) => {
-                    const client = job.order_item?.order?.client;
-                    return (
-                      <div
-                        key={job.id}
-                        onClick={() => handleJobClick(job)}
-                        className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer bg-card relative"
-                      >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => handleEdit(job, e)}
-                          className="absolute top-2 right-2 h-8 w-8 rounded-full bg-background/80 hover:bg-background"
+                {/* Grid View */}
+                {viewMode === 'grid' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {items.map((job) => {
+                      const client = job.order_item?.order?.client;
+                      return (
+                        <div
+                          key={job.id}
+                          onClick={() => handleJobClick(job)}
+                          className="border rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer bg-card relative"
                         >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        
-                        <div className="flex items-start justify-between mb-3 pr-8">
-                          <div>
-                            <h3 className="font-mono font-semibold text-sm">{job.reference}</h3>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {job.order_item?.order?.reference}
-                            </p>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={(e) => handleEdit(job, e)}
+                            className="absolute top-2 right-2 h-8 w-8 rounded-full bg-background/80 hover:bg-background"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          
+                          <div className="flex items-start justify-between mb-3 pr-8">
+                            <div>
+                              <h3 className="font-mono font-semibold text-sm">{job.reference}</h3>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {job.order_item?.order?.reference}
+                              </p>
+                            </div>
+                            <ProductionStateBadge state={job.state} />
                           </div>
-                          <ProductionStateBadge state={job.state} />
-                        </div>
 
-                        {job.order_item?.design_image_url && (
-                          <div className="w-full h-32 rounded-md overflow-hidden mb-3 bg-muted">
-                            <img
-                              src={job.order_item.design_image_url}
-                              alt="Design"
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-
-                        <div className="space-y-2 text-sm">
-                          {client && (
-                            <div className="flex items-center gap-2 pb-2 border-b">
-                              <Avatar className="h-8 w-8">
-                                <AvatarFallback className="text-xs">
-                                  {client.full_name?.split(' ').map(n => n[0]).join('') || '?'}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-xs truncate">{client.full_name}</p>
-                                <p className="text-xs text-muted-foreground">{client.phone}</p>
-                              </div>
+                          {job.order_item?.design_image_url && (
+                            <div className="w-full h-32 rounded-md overflow-hidden mb-3 bg-muted">
+                              <img
+                                src={job.order_item.design_image_url}
+                                alt="Design"
+                                className="w-full h-full object-cover"
+                              />
                             </div>
                           )}
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <Package className="h-3 w-3" />
-                            <span className="truncate">{job.order_item?.description}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <User className="h-3 w-3" />
-                            <span>{job.assigned_to?.name || 'Unassigned'}</span>
-                          </div>
-                          {job.planned_start_at && (
+
+                          <div className="space-y-2 text-sm">
+                            {client && (
+                              <div className="flex items-center gap-2 pb-2 border-b">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarFallback className="text-xs">
+                                    {client.full_name?.split(' ').map(n => n[0]).join('') || '?'}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium text-xs truncate">{client.full_name}</p>
+                                  <p className="text-xs text-muted-foreground">{client.phone}</p>
+                                </div>
+                              </div>
+                            )}
                             <div className="flex items-center gap-2 text-muted-foreground">
-                              <Calendar className="h-3 w-3" />
-                              <span>{formatDate(job.planned_start_at)}</span>
+                              <Package className="h-3 w-3" />
+                              <span className="truncate">{job.order_item?.description}</span>
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Kanban View */}
-              {viewMode === 'kanban' && (
-                <div className="overflow-x-auto pb-4">
-                  <div className="flex gap-4 min-w-max">
-                    {Object.entries(jobsByState).map(([state, jobs]) => (
-                      <div key={state} className="w-80 flex-shrink-0">
-                        <div className="bg-muted/50 rounded-t-lg p-3 border-b">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-sm">{state.replace(/_/g, ' ')}</h3>
-                            <span className="text-xs bg-background rounded-full px-2 py-1">
-                              {jobs.length}
-                            </span>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <User className="h-3 w-3" />
+                              <span>{job.assigned_to?.name || 'Unassigned'}</span>
+                            </div>
+                            {job.planned_start_at && (
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <Calendar className="h-3 w-3" />
+                                <span>{formatDate(job.planned_start_at)}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <div className="space-y-3 p-3 bg-muted/20 rounded-b-lg min-h-[400px]">
-                          {jobs.map((job) => {
-                            const client = job.order_item?.order?.client;
-                            return (
-                              <div
-                                key={job.id}
-                                onClick={() => handleJobClick(job)}
-                                className="bg-card border rounded-lg p-3 hover:shadow-md transition-all cursor-pointer relative"
-                              >
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={(e) => handleEdit(job, e)}
-                                  className="absolute top-2 right-2 h-7 w-7 rounded-full bg-background/80 hover:bg-background"
-                                >
-                                  <Edit className="h-3 w-3" />
-                                </Button>
-
-                                <div className="flex items-start gap-2 mb-2 pr-8">
-                                  {job.order_item?.design_image_url && (
-                                    <div className="w-12 h-12 rounded overflow-hidden bg-muted flex-shrink-0">
-                                      <img
-                                        src={job.order_item.design_image_url}
-                                        alt="Design"
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className="font-mono font-medium text-xs mb-1">{job.reference}</h4>
-                                    <p className="text-xs text-muted-foreground truncate">
-                                      {job.order_item?.description}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                {client && (
-                                  <div className="flex items-center gap-2 mb-2 pb-2 border-b">
-                                    <Avatar className="h-7 w-7">
-                                      <AvatarFallback className="text-xs">
-                                        {client.full_name?.split(' ').map(n => n[0]).join('') || '?'}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="font-medium text-xs truncate">{client.full_name}</p>
-                                      <p className="text-xs text-muted-foreground truncate">{client.phone}</p>
-                                    </div>
-                                  </div>
-                                )}
-
-                                <div className="space-y-1 text-xs">
-                                  <div className="flex items-center gap-1 text-muted-foreground">
-                                    <Package className="h-3 w-3" />
-                                    <span className="truncate">{job.order_item?.order?.reference}</span>
-                                  </div>
-                                  <div className="flex items-center gap-1 text-muted-foreground">
-                                    <User className="h-3 w-3" />
-                                    <span>{job.assigned_to?.name || 'Unassigned'}</span>
-                                  </div>
-                                  {job.planned_start_at && (
-                                    <div className="flex items-center gap-1 text-muted-foreground">
-                                      <Calendar className="h-3 w-3" />
-                                      <span>{formatDate(job.planned_start_at)}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
-                </div>
-              )}
-            </>
-          )}
+                )}
+
+                {/* Kanban View */}
+                {viewMode === 'kanban' && (
+                  <div className="overflow-x-auto pb-4">
+                    <div className="flex gap-4 min-w-max">
+                      {Object.entries(jobsByState).map(([state, jobs]) => (
+                        <div key={state} className="w-80 flex-shrink-0">
+                          <div className="bg-muted/50 rounded-t-lg p-3 border-b">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold text-sm">{state.replace(/_/g, ' ')}</h3>
+                              <span className="text-xs bg-background rounded-full px-2 py-1">
+                                {jobs.length}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="space-y-3 p-3 bg-muted/20 rounded-b-lg min-h-[400px]">
+                            {jobs.map((job) => {
+                              const client = job.order_item?.order?.client;
+                              return (
+                                <div
+                                  key={job.id}
+                                  onClick={() => handleJobClick(job)}
+                                  className="bg-card border rounded-lg p-3 hover:shadow-md transition-all cursor-pointer relative"
+                                >
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={(e) => handleEdit(job, e)}
+                                    className="absolute top-2 right-2 h-7 w-7 rounded-full bg-background/80 hover:bg-background"
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </Button>
+
+                                  <div className="flex items-start gap-2 mb-2 pr-8">
+                                    {job.order_item?.design_image_url && (
+                                      <div className="w-12 h-12 rounded overflow-hidden bg-muted flex-shrink-0">
+                                        <img
+                                          src={job.order_item.design_image_url}
+                                          alt="Design"
+                                          className="w-full h-full object-cover"
+                                        />
+                                      </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className="font-mono font-medium text-xs mb-1">{job.reference}</h4>
+                                      <p className="text-xs text-muted-foreground truncate">
+                                        {job.order_item?.description}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {client && (
+                                    <div className="flex items-center gap-2 mb-2 pb-2 border-b">
+                                      <Avatar className="h-7 w-7">
+                                        <AvatarFallback className="text-xs">
+                                          {client.full_name?.split(' ').map(n => n[0]).join('') || '?'}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-xs truncate">{client.full_name}</p>
+                                        <p className="text-xs text-muted-foreground truncate">{client.phone}</p>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  <div className="space-y-1 text-xs">
+                                    <div className="flex items-center gap-1 text-muted-foreground">
+                                      <Package className="h-3 w-3" />
+                                      <span className="truncate">{job.order_item?.order?.reference}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-muted-foreground">
+                                      <User className="h-3 w-3" />
+                                      <span>{job.assigned_to?.name || 'Unassigned'}</span>
+                                    </div>
+                                    {job.planned_start_at && (
+                                      <div className="flex items-center gap-1 text-muted-foreground">
+                                        <Calendar className="h-3 w-3" />
+                                        <span>{formatDate(job.planned_start_at)}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
 

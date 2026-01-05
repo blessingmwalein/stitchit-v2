@@ -161,7 +161,7 @@ export default function InventoryIndex() {
       header: 'Avg Cost',
       accessor: (row) => {
         const cost = row.average_cost || row.unit_cost || 0;
-        return `$${Number(cost).toFixed(2)}`;
+        return `$${Number(cost).toFixed(8)}`;
       },
       className: 'text-right',
       sortable: true,
@@ -182,7 +182,7 @@ export default function InventoryIndex() {
             e.stopPropagation();
             handleEdit(row);
           }}
-          className="h-8 w-8 rounded-full"
+          className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-sm"
         >
           <Edit className="h-4 w-4" />
         </Button>
@@ -206,7 +206,7 @@ export default function InventoryIndex() {
             </div>
             <div className="flex gap-2">
               <Link href="/admin/inventory/needs-reorder">
-                <Button variant="outline">
+                <Button variant="outline" className="rounded-full">
                   <svg
                     className="w-4 h-4 mr-2"
                     fill="none"
@@ -226,7 +226,7 @@ export default function InventoryIndex() {
               <Button onClick={() => {
                 setSelectedItem(null);
                 setShowModal(true);
-              }}>
+              }} className="rounded-full">
                 <svg
                   className="w-4 h-4 mr-2"
                   fill="none"
@@ -245,7 +245,8 @@ export default function InventoryIndex() {
             </div>
           </div>
 
-          <div className="mb-6 space-y-4">
+          {/* Filters Card */}
+          <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
             <div className="flex gap-4 flex-wrap">
               <Input
                 type="text"
@@ -281,6 +282,7 @@ export default function InventoryIndex() {
               {(searchQuery || typeFilter) && (
                 <Button
                   variant="outline"
+                  className="rounded-full"
                   onClick={() => {
                     setSearchQuery('');
                     setTypeFilter('');
@@ -293,41 +295,44 @@ export default function InventoryIndex() {
             </div>
           </div>
 
-          {items.length === 0 && !loading ? (
-            <EmptyState
-              icon={EmptyIcons.Box}
-              title="No inventory items yet"
-              description="Add materials and supplies to track your inventory."
-              action={{
-                label: 'Add First Item',
-                onClick: () => {
-                  setSelectedItem(null);
-                  setShowModal(true);
-                },
-              }}
-            />
-          ) : (
-            <>
-              <DataTable
-                data={items}
-                columns={columns}
-                loading={loading}
-                onRowClick={handleRowClick}
-                sortable={true}
-                sortField={sortField}
-                sortDirection={sortDirection}
-                onSort={handleSort}
+          {/* Table Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            {items.length === 0 && !loading ? (
+              <EmptyState
+                icon={EmptyIcons.Box}
+                title="No inventory items yet"
+                description="Add materials and supplies to track your inventory."
+                action={{
+                  label: 'Add First Item',
+                  onClick: () => {
+                    setSelectedItem(null);
+                    setShowModal(true);
+                  },
+                }}
               />
+            ) : (
+              <>
+                <DataTable
+                  data={items}
+                  columns={columns}
+                  loading={loading}
+                  onRowClick={handleRowClick}
+                  sortable={true}
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                />
 
-              <Pagination
-                currentPage={pagination.current_page}
-                lastPage={pagination.last_page}
-                total={pagination.total}
-                perPage={pagination.per_page}
-                onPageChange={handlePageChange}
-              />
-            </>
-          )}
+                <Pagination
+                  currentPage={pagination.current_page}
+                  lastPage={pagination.last_page}
+                  total={pagination.total}
+                  perPage={pagination.per_page}
+                  onPageChange={handlePageChange}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
 

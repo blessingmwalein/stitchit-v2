@@ -208,7 +208,7 @@ export default function PurchasesIndex() {
             e.stopPropagation();
             handleEdit(row);
           }}
-          className="h-8 w-8 rounded-full"
+          className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-sm"
         >
           <Edit className="h-4 w-4" />
         </Button>
@@ -232,11 +232,11 @@ export default function PurchasesIndex() {
             </div>
             <div className="flex gap-2">
               <Link href="/admin/suppliers">
-                <Button variant="outline">
+                <Button variant="outline" className="rounded-full">
                   Manage Suppliers
                 </Button>
               </Link>
-              <Button onClick={() => setShowCreateModal(true)}>
+              <Button onClick={() => setShowCreateModal(true)} className="rounded-full">
                 <svg
                   className="w-4 h-4 mr-2"
                   fill="none"
@@ -255,8 +255,8 @@ export default function PurchasesIndex() {
             </div>
           </div>
 
-          {/* Filters Section */}
-          <div className="mb-6 space-y-4">
+          {/* Filters Card */}
+          <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
             <div className="flex gap-4 flex-wrap">
               <Input
                 type="text"
@@ -312,6 +312,7 @@ export default function PurchasesIndex() {
               {(searchQuery || supplierFilter || stateFilter || dateFrom || dateTo) && (
                 <Button
                   variant="outline"
+                  className="rounded-full"
                   onClick={() => {
                     setSearchQuery('');
                     setSupplierFilter('');
@@ -327,38 +328,41 @@ export default function PurchasesIndex() {
             </div>
           </div>
 
-          {items.length === 0 && !loading ? (
-            <EmptyState
-              icon={EmptyIcons.Inbox}
-              title="No purchase orders yet"
-              description="Create purchase orders to restock inventory from suppliers."
-              action={{
-                label: 'Create First PO',
-                onClick: () => setShowCreateModal(true),
-              }}
-            />
-          ) : (
-            <>
-              <DataTable
-                data={items}
-                columns={columns}
-                loading={loading}
-                onRowClick={handleRowClick}
-                sortable={true}
-                sortField={sortField}
-                sortDirection={sortDirection}
-                onSort={handleSort}
+          {/* Table Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            {items.length === 0 && !loading ? (
+              <EmptyState
+                icon={EmptyIcons.Inbox}
+                title="No purchase orders yet"
+                description="Create purchase orders to restock inventory from suppliers."
+                action={{
+                  label: 'Create First PO',
+                  onClick: () => setShowCreateModal(true),
+                }}
               />
+            ) : (
+              <>
+                <DataTable
+                  data={items}
+                  columns={columns}
+                  loading={loading}
+                  onRowClick={handleRowClick}
+                  sortable={true}
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                />
 
-              <Pagination
-                currentPage={pagination.current_page}
-                lastPage={pagination.last_page}
-                total={pagination.total}
-                perPage={pagination.per_page}
-                onPageChange={handlePageChange}
-              />
-            </>
-          )}
+                <Pagination
+                  currentPage={pagination.current_page}
+                  lastPage={pagination.last_page}
+                  total={pagination.total}
+                  perPage={pagination.per_page}
+                  onPageChange={handlePageChange}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
 

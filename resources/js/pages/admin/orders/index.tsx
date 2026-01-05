@@ -169,7 +169,7 @@ export default function OrdersIndex() {
         const canEdit = !['IN_PRODUCTION', 'READY_FOR_DISPATCH', 'DISPATCHED', 'CLOSED', 'ARCHIVED'].includes(row.state);
         
         return (
-          <div className="flex gap-1 justify-end">
+          <div className="flex gap-2 justify-end">
             <Button
               variant="ghost"
               size="sm"
@@ -177,7 +177,7 @@ export default function OrdersIndex() {
                 e.stopPropagation();
                 handleRowClick(row);
               }}
-              className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-sm"
               title="View Order"
             >
               <EyeIcon className="h-4 w-4" />
@@ -193,7 +193,7 @@ export default function OrdersIndex() {
                 }
               }}
               disabled={!canEdit}
-              className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               title={canEdit ? 'Edit Order' : 'Cannot edit orders in production or later'}
             >
               <PencilIcon className="h-4 w-4" />
@@ -230,7 +230,7 @@ export default function OrdersIndex() {
                 Manage customer orders and quotes
               </p>
             </div>
-            <Button onClick={() => setShowCreateModal(true)}>
+            <Button onClick={() => setShowCreateModal(true)} className="rounded-full">
                 <svg
                   className="w-4 h-4 mr-2"
                   fill="none"
@@ -248,98 +248,105 @@ export default function OrdersIndex() {
               </Button>
           </div>
 
-          <div className="mb-6 flex gap-4 flex-wrap">
-            <Input
-              type="text"
-              placeholder="Search all..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-xs"
-            />
-            <select
-              value={stateFilter}
-              onChange={(e) => setStateFilter(e.target.value)}
-              className="border border-input rounded-md px-3 py-2 text-sm bg-background"
-            >
-              <option value="">All States</option>
-              <option value="DRAFT">Draft</option>
-              <option value="PENDING_DEPOSIT">Pending Deposit</option>
-              <option value="DEPOSIT_PAID">Deposit Paid</option>
-              <option value="IN_PRODUCTION">In Production</option>
-              <option value="READY_FOR_DISPATCH">Ready for Dispatch</option>
-              <option value="DISPATCHED">Dispatched</option>
-              <option value="CLOSED">Closed</option>
-              <option value="ARCHIVED">Archived</option>
-            </select>
-            <Input
-              type="text"
-              placeholder="Filter by reference..."
-              value={referenceFilter}
-              onChange={(e) => setReferenceFilter(e.target.value)}
-              className="max-w-xs"
-            />
-            <Input
-              type="text"
-              placeholder="Filter by client name..."
-              value={clientNameFilter}
-              onChange={(e) => setClientNameFilter(e.target.value)}
-              className="max-w-xs"
-            />
-            <Input
-              type="text"
-              placeholder="Filter by client email..."
-              value={clientEmailFilter}
-              onChange={(e) => setClientEmailFilter(e.target.value)}
-              className="max-w-xs"
-            />
-            {(searchQuery || stateFilter || referenceFilter || clientNameFilter || clientEmailFilter) && (
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setSearchQuery('');
-                  setStateFilter('');
-                  setReferenceFilter('');
-                  setClientNameFilter('');
-                  setClientEmailFilter('');
-                }}
+          {/* Filters Card */}
+          <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
+            <div className="flex gap-4 flex-wrap">
+              <Input
+                type="text"
+                placeholder="Search all..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="max-w-xs"
+              />
+              <select
+                value={stateFilter}
+                onChange={(e) => setStateFilter(e.target.value)}
+                className="border border-input rounded-md px-3 py-2 text-sm bg-background"
               >
-                Clear Filters
-              </Button>
-            )}
+                <option value="">All States</option>
+                <option value="DRAFT">Draft</option>
+                <option value="PENDING_DEPOSIT">Pending Deposit</option>
+                <option value="DEPOSIT_PAID">Deposit Paid</option>
+                <option value="IN_PRODUCTION">In Production</option>
+                <option value="READY_FOR_DISPATCH">Ready for Dispatch</option>
+                <option value="DISPATCHED">Dispatched</option>
+                <option value="CLOSED">Closed</option>
+                <option value="ARCHIVED">Archived</option>
+              </select>
+              <Input
+                type="text"
+                placeholder="Filter by reference..."
+                value={referenceFilter}
+                onChange={(e) => setReferenceFilter(e.target.value)}
+                className="max-w-xs"
+              />
+              <Input
+                type="text"
+                placeholder="Filter by client name..."
+                value={clientNameFilter}
+                onChange={(e) => setClientNameFilter(e.target.value)}
+                className="max-w-xs"
+              />
+              <Input
+                type="text"
+                placeholder="Filter by client email..."
+                value={clientEmailFilter}
+                onChange={(e) => setClientEmailFilter(e.target.value)}
+                className="max-w-xs"
+              />
+              {(searchQuery || stateFilter || referenceFilter || clientNameFilter || clientEmailFilter) && (
+                <Button 
+                  variant="outline" 
+                  className="rounded-full"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setStateFilter('');
+                    setReferenceFilter('');
+                    setClientNameFilter('');
+                    setClientEmailFilter('');
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              )}
+            </div>
           </div>
 
-          {items.length === 0 && !loading ? (
-            <EmptyState
-              icon={EmptyIcons.Clipboard}
-              title="No orders yet"
-              description="Start creating orders for your clients."
-              action={{
-                label: 'Create First Order',
-                onClick: () => setShowCreateModal(true),
-              }}
-            />
-          ) : (
-            <>
-              <DataTable
-                data={items}
-                columns={columns}
-                loading={loading}
-                onRowClick={handleRowClick}
-                sortable={true}
-                sortField={sortField}
-                sortDirection={sortDirection}
-                onSort={handleSort}
+          {/* Table Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            {items.length === 0 && !loading ? (
+              <EmptyState
+                icon={EmptyIcons.Clipboard}
+                title="No orders yet"
+                description="Start creating orders for your clients."
+                action={{
+                  label: 'Create First Order',
+                  onClick: () => setShowCreateModal(true),
+                }}
               />
+            ) : (
+              <>
+                <DataTable
+                  data={items}
+                  columns={columns}
+                  loading={loading}
+                  onRowClick={handleRowClick}
+                  sortable={true}
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                />
 
-              <Pagination
-                currentPage={pagination.current_page}
-                lastPage={pagination.last_page}
-                total={pagination.total}
-                perPage={pagination.per_page}
-                onPageChange={handlePageChange}
-              />
-            </>
-          )}
+                <Pagination
+                  currentPage={pagination.current_page}
+                  lastPage={pagination.last_page}
+                  total={pagination.total}
+                  perPage={pagination.per_page}
+                  onPageChange={handlePageChange}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
 

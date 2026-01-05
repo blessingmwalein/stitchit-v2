@@ -167,4 +167,43 @@
     body {
         @apply bg-background text-foreground;
     }
+
+    /* Global button styles - rounded corners */
+    button {
+        @apply rounded-lg;
+    }
+
+    /* Global input and textarea styles - white background, gray borders, rounded */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="search"],
+    input[type="date"],
+    input[type="time"],
+    input[type="datetime-local"],
+    textarea,
+    select {
+        @apply bg-white border border-gray-300 rounded-lg px-3 py-2 text-foreground;
+        @apply focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent;
+        @apply disabled:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    /* Make sure dark mode inputs also have proper styling */
+    .dark input[type="text"],
+    .dark input[type="email"],
+    .dark input[type="password"],
+    .dark input[type="number"],
+    .dark input[type="tel"],
+    .dark input[type="url"],
+    .dark input[type="search"],
+    .dark input[type="date"],
+    .dark input[type="time"],
+    .dark input[type="datetime-local"],
+    .dark textarea,
+    .dark select {
+        @apply bg-gray-800 border-gray-700 text-foreground;
+    }
 }

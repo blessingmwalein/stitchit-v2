@@ -1,0 +1,116 @@
+import React from 'react';
+import { useForm, Head } from '@inertiajs/react';
+import AdminLayout from '@/Layouts/AdminLayout';
+
+export default function Index({ formulas }) {
+    const { data, setData, post, processing, errors } = useForm({
+        name: '',
+        width_cm: 70,
+        length_cm: 70,
+        profit_percentage: 50,
+        complexity_multiplier: 1,
+        is_active: true,
+        notes: '',
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        post(route('admin.rug-pricing.store'));
+    };
+
+    return (
+        <AdminLayout>
+            <Head title="Rug Pricing Formulas" />
+
+            <template #header>
+                <h2 className="font-semibold text-xl text-gray-800 leading-tight">Rug Pricing Formulas</h2>
+            </template>
+
+            <div className="py-12">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div className="p-6 bg-white border-b border-gray-200">
+                            <div className="mb-8">
+                                <h3 className="text-lg font-medium text-gray-900 mb-4">Create New Formula</h3>
+                                <form onSubmit={submit}>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Formula Name</label>
+                                            <input value={data.name} onChange={e => setData('name', e.target.value)} type="text" id="name" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                                            {errors.name && <div className="text-sm text-red-600">{errors.name}</div>}
+                                        </div>
+                                        <div>
+                                            <label htmlFor="profit_percentage" className="block text-sm font-medium text-gray-700">Profit Percentage (%)</label>
+                                            <input value={data.profit_percentage} onChange={e => setData('profit_percentage', e.target.value)} type="number" id="profit_percentage" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                                            {errors.profit_percentage && <div className="text-sm text-red-600">{errors.profit_percentage}</div>}
+                                        </div>
+                                        <div>
+                                            <label htmlFor="width_cm" className="block text-sm font-medium text-gray-700">Sample Width (cm)</label>
+                                            <input value={data.width_cm} onChange={e => setData('width_cm', e.target.value)} type="number" id="width_cm" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                                            {errors.width_cm && <div className="text-sm text-red-600">{errors.width_cm}</div>}
+                                        </div>
+                                        <div>
+                                            <label htmlFor="length_cm" className="block text-sm font-medium text-gray-700">Sample Length (cm)</label>
+                                            <input value={data.length_cm} onChange={e => setData('length_cm', e.target.value)} type="number" id="length_cm" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                                            {errors.length_cm && <div className="text-sm text-red-600">{errors.length_cm}</div>}
+                                        </div>
+                                        <div>
+                                            <label htmlFor="complexity_multiplier" className="block text-sm font-medium text-gray-700">Complexity Multiplier</label>
+                                            <input value={data.complexity_multiplier} onChange={e => setData('complexity_multiplier', e.target.value)} type="number" step="0.01" id="complexity_multiplier" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" />
+                                            {errors.complexity_multiplier && <div className="text-sm text-red-600">{errors.complexity_multiplier}</div>}
+                                        </div>
+                                        <div className="flex items-center">
+                                            <input checked={data.is_active} onChange={e => setData('is_active', e.target.checked)} type="checkbox" id="is_active" className="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50" />
+                                            <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">Set as active formula</label>
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Notes</label>
+                                            <textarea value={data.notes} onChange={e => setData('notes', e.target.value)} id="notes" rows="3" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></textarea>
+                                        </div>
+                                    </div>
+                                    <div className="mt-6">
+                                        <button type="submit" disabled={processing} className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                            Create Formula
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div>
+                                <h3 className="text-lg font-medium text-gray-900 mb-4">Existing Formulas</h3>
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full divide-y divide-gray-200">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Cost / sqcm</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Final Price / sqcm</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profit %</th>
+                                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Active</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {formulas.map(formula => (
+                                                <tr key={formula.id}>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formula.name}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parseFloat(formula.total_cost_per_sqcm).toFixed(4)}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${parseFloat(formula.final_price_per_sqcm).toFixed(4)}</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{parseFloat(formula.profit_percentage).toFixed(2)}%</td>
+                                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                        <span className={`${formula.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 inline-flex text-xs leading-5 font-semibold rounded-full`}>
+                                                            {formula.is_active ? 'Yes' : 'No'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </AdminLayout>
+    );
+}

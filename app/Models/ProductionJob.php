@@ -95,6 +95,14 @@ class ProductionJob extends Model
     }
 
     /**
+     * Get finished product
+     */
+    public function finishedProduct(): HasOne
+    {
+        return $this->hasOne(FinishedProduct::class);
+    }
+
+    /**
      * Check if job is completed
      */
     public function isCompleted(): bool

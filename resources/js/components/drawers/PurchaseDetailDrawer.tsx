@@ -345,13 +345,13 @@ export function PurchaseDetailDrawer({ open, onClose, poId, onEdit, onReceive, o
                     <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
                       <p className="text-sm text-muted-foreground">Total Value</p>
                       <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        ${totalValue.toFixed(2)}
+                        ${totalValue.toFixed(8)}
                       </p>
                     </div>
                     <div className="p-4 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
                       <p className="text-sm text-muted-foreground">Received Value</p>
                       <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                        ${receivedValue.toFixed(2)}
+                        ${receivedValue.toFixed(8)}
                       </p>
                     </div>
                     <div className="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
@@ -453,8 +453,8 @@ export function PurchaseDetailDrawer({ open, onClose, poId, onEdit, onReceive, o
                               <td className="p-3 text-sm text-right">
                                 {quantityOrdered} {line.inventory_item?.unit}
                               </td>
-                              <td className="p-3 text-sm text-right">${unitCost.toFixed(2)}</td>
-                              <td className="p-3 text-sm text-right font-medium">${subtotal.toFixed(2)}</td>
+                              <td className="p-3 text-sm text-right">${unitCost.toFixed(8)}</td>
+                              <td className="p-3 text-sm text-right font-medium">${subtotal.toFixed(8)}</td>
                               <td className="p-3 text-sm text-right">
                                 {quantityReceived} / {quantityOrdered}
                               </td>
@@ -480,7 +480,7 @@ export function PurchaseDetailDrawer({ open, onClose, poId, onEdit, onReceive, o
                       <tfoot className="bg-muted/50 border-t">
                         <tr>
                           <td colSpan={4} className="p-3 text-right font-semibold">Total:</td>
-                          <td className="p-3 text-right font-bold text-lg">${totalValue.toFixed(2)}</td>
+                          <td className="p-3 text-right font-bold text-lg">${totalValue.toFixed(8)}</td>
                           <td colSpan={2}></td>
                         </tr>
                       </tfoot>

@@ -327,6 +327,90 @@ class ProductionService
     }
 
     /**
+     * Save estimated materials from recipe calculation
+     */
+    public function saveEstimates(int $jobId, array $data): ProductionJob
+    {
+        $job = $this->productionRepository->findOrFail($jobId);
+
+        return DB::transaction(function () use ($job, $data) {
+            // Delete existing estimated materials
+            MaterialConsumption::where('production_job_id', $job->id)
+                ->where('type', 'estimated')
+                ->delete();
+
+            // Create new estimated materials
+            foreach ($data['materials'] as $material) {
+                $inventoryItem = $this->inventoryRepository->findOrFail($material['inventory_item_id']);
+                
+                MaterialConsumption::create([
+                    'production_job_id' => $job->id,
+                    'inventory_item_id' => $material['inventory_item_id'],
+                    'type' => 'estimated',
+                    'quantity' => $material['consumed_quantity'],
+                    'waste_quantity' => $material['waste_quantity'] ?? 0,
+                    'unit_cost' => $inventoryItem->unit_cost,
+                    'total_cost' => $material['consumed_quantity'] * $inventoryItem->unit_cost,
+                    'recorded_by' => auth()->id(),
+                    'recorded_at' => now(),
+                ]);
+            }
+
+            // Update estimated labor hours if provided
+            if (isset($data['estimated_labor_hours'])) {
+                $job->estimated_labor_hours = $data['estimated_labor_hours'];
+            }
+
+            // Recalculate estimated material cost
+            $totalEstimatedCost = MaterialConsumption::where('production_job_id', $job->id)
+                ->where('type', 'estimated')
+                ->sum('total_cost');
+            
+            $job->estimated_material_cost = $totalEstimatedCost;
+            $job->save();
+
+            return $job->fresh(['materialConsumptions.inventoryItem']);
+        });
+    }
+
+    /**
+     * Complete production job
+     */
+    public function completeJob(int $jobId, array $data): ProductionJob
+    {
+        $job = $this->productionRepository->findOrFail($jobId);
+
+        if ($job->state !== 'QUALITY_CHECK') {
+            throw new \Exception('Job must be in QUALITY_CHECK state to complete.');
+        }
+
+        return DB::transaction(function () use ($job, $data) {
+            $job->state = 'COMPLETED';
+            $job->actual_end_at = now();
+            $job->actual_labor_hours = $data['actual_labor_hours'];
+            
+            if (isset($data['quality_notes'])) {
+                $job->notes = ($job->notes ? $job->notes . "\n\n" : '') . 
+                             "Quality Check Notes:\n" . $data['quality_notes'];
+            }
+
+            $job->save();
+
+            // Create cost snapshot
+            $this->createCostSnapshot($job);
+
+            // Record production costs in accounting system
+            try {
+                $this->accountingService->recordProductionCost($job);
+            } catch (\Exception $e) {
+                \Log::warning("Failed to record production cost in accounting: {$e->getMessage()}");
+            }
+
+            return $job->fresh(['materialConsumptions.inventoryItem']);
+        });
+    }
+
+    /**
      * Delete job
      */
     public function delete(int $id): bool
@@ -341,3 +425,4 @@ class ProductionService
         return $this->productionRepository->delete($id);
     }
 }
+

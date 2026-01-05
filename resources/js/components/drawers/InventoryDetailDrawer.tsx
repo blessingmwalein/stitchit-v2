@@ -280,7 +280,7 @@ export function InventoryDetailDrawer({ open, onClose, itemId, onEdit, onAdjust,
                     </div>
                     <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
                       <p className="text-sm text-muted-foreground mb-1">Average Cost</p>
-                      <p className="text-3xl font-bold text-green-600">${Number(item.average_cost || item.unit_cost || 0).toFixed(2)}</p>
+                      <p className="text-3xl font-bold text-green-600">${Number(item.average_cost || item.unit_cost || 0).toFixed(8)}</p>
                       <p className="text-xs text-muted-foreground mt-1">per {item.unit}</p>
                     </div>
                   </div>
@@ -330,7 +330,7 @@ export function InventoryDetailDrawer({ open, onClose, itemId, onEdit, onAdjust,
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                Cost: ${tx.unit_cost_before.toFixed(2)} → ${tx.unit_cost_after.toFixed(2)}
+                                Cost: ${tx.unit_cost_before.toFixed(8)} → ${tx.unit_cost_after.toFixed(8)}
                               </p>
                               {tx.notes && (
                                 <p className="text-sm text-muted-foreground mt-1">{tx.notes}</p>

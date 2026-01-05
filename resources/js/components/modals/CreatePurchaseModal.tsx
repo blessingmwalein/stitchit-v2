@@ -412,7 +412,7 @@ export function CreatePurchaseModal({ open, onClose, suppliers, inventoryItems, 
                         <div className="space-y-1">
                           <Label className="text-xs">Subtotal</Label>
                           <div className="h-9 flex items-center font-semibold text-sm">
-                            ${lineTotal.toFixed(2)}
+                            ${lineTotal.toFixed(8)}
                           </div>
                         </div>
                       </div>
@@ -438,7 +438,7 @@ export function CreatePurchaseModal({ open, onClose, suppliers, inventoryItems, 
             {/* Total */}
             <div className="flex justify-end items-center gap-3 p-3 border-t-2 bg-muted/30 rounded">
               <span className="font-semibold">Total:</span>
-              <span className="text-2xl font-bold">${calculateTotal().toFixed(2)}</span>
+              <span className="text-2xl font-bold">${calculateTotal().toFixed(8)}</span>
             </div>
           </div>
 

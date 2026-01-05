@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { EmptyState, EmptyIcons } from '@/components/ui/empty-state';
 import { formatDate } from '@/lib/utils';
-import { Edit } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import { SupplierModal } from '@/components/modals/SupplierModal';
 import axios from 'axios';
 import { useAppDispatch } from '@/store/hooks';
@@ -169,7 +169,7 @@ export default function SuppliersIndex() {
     {
       header: 'Actions',
       accessor: (row) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 justify-end">
           <Button
             variant="ghost"
             size="icon"
@@ -177,7 +177,7 @@ export default function SuppliersIndex() {
               e.stopPropagation();
               handleEdit(row);
             }}
-            className="h-8 w-8 rounded-full"
+            className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-sm"
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -188,9 +188,9 @@ export default function SuppliersIndex() {
               e.stopPropagation();
               handleDelete(row.id);
             }}
-            className="text-red-600 hover:text-red-700"
+            className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-sm"
           >
-            Delete
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       ),
@@ -212,7 +212,7 @@ export default function SuppliersIndex() {
                 Manage your suppliers and vendor information
               </p>
             </div>
-            <Button onClick={handleCreate}>
+            <Button onClick={handleCreate} className="rounded-full">
               <svg
                 className="w-4 h-4 mr-2"
                 fill="none"
@@ -230,61 +230,66 @@ export default function SuppliersIndex() {
             </Button>
           </div>
 
-          {/* Search */}
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <Input
-              placeholder="Search by name, email, or phone..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-md"
-            />
-            <Button type="submit">Search</Button>
-            {searchQuery && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setSearchQuery('');
-                  fetchSuppliers(1, '', sortField, sortDirection);
+          {/* Search Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            <form onSubmit={handleSearch} className="flex gap-2">
+              <Input
+                placeholder="Search by name, email, or phone..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="max-w-md"
+              />
+              <Button type="submit" className="rounded-full">Search</Button>
+              {searchQuery && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={() => {
+                    setSearchQuery('');
+                    fetchSuppliers(1, '', sortField, sortDirection);
+                  }}
+                >
+                  Clear
+                </Button>
+              )}
+            </form>
+          </div>
+
+          {/* Table Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            {suppliers.length === 0 && !loading ? (
+              <EmptyState
+                icon={EmptyIcons.Inbox}
+                title="No suppliers yet"
+                description="Add your first supplier to start managing vendors and purchase orders."
+                action={{
+                  label: 'Create First Supplier',
+                  onClick: handleCreate,
                 }}
-              >
-                Clear
-              </Button>
+              />
+            ) : (
+              <>
+                <DataTable 
+                  data={suppliers} 
+                  columns={columns} 
+                  loading={loading}
+                  sortable={true}
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                />
+
+                <Pagination
+                  currentPage={pagination.current_page}
+                  lastPage={pagination.last_page}
+                  total={pagination.total}
+                  perPage={pagination.per_page}
+                  onPageChange={handlePageChange}
+                />
+              </>
             )}
-          </form>
-
-          {/* Table */}
-          {suppliers.length === 0 && !loading ? (
-            <EmptyState
-              icon={EmptyIcons.Inbox}
-              title="No suppliers yet"
-              description="Add your first supplier to start managing vendors and purchase orders."
-              action={{
-                label: 'Create First Supplier',
-                onClick: handleCreate,
-              }}
-            />
-          ) : (
-            <>
-              <DataTable 
-                data={suppliers} 
-                columns={columns} 
-                loading={loading}
-                sortable={true}
-                sortField={sortField}
-                sortDirection={sortDirection}
-                onSort={handleSort}
-              />
-
-              <Pagination
-                currentPage={pagination.current_page}
-                lastPage={pagination.last_page}
-                total={pagination.total}
-                perPage={pagination.per_page}
-                onPageChange={handlePageChange}
-              />
-            </>
-          )}
+          </div>
         </div>
       </div>
 

@@ -352,7 +352,7 @@ export function EditPurchaseModal({ open, onClose, purchaseOrder, suppliers, inv
                     <div className="flex flex-col items-end gap-1 min-w-[100px]">
                       <Label className="text-xs">Subtotal</Label>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm">${lineTotal.toFixed(2)}</span>
+                        <span className="font-semibold text-sm">${lineTotal.toFixed(8)}</span>
                         {lines.length > 1 && (
                           <Button
                             type="button"
@@ -374,7 +374,7 @@ export function EditPurchaseModal({ open, onClose, purchaseOrder, suppliers, inv
             {/* Total */}
             <div className="flex justify-end items-center gap-3 p-3 border-t-2 bg-muted/30 rounded">
               <span className="font-semibold">Total:</span>
-              <span className="text-2xl font-bold">${calculateTotal().toFixed(2)}</span>
+              <span className="text-2xl font-bold">${calculateTotal().toFixed(8)}</span>
             </div>
           </div>
 

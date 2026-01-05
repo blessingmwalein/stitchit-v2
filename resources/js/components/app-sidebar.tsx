@@ -26,7 +26,9 @@ import {
     Calculator,
     Receipt,
     BookOpen,
-    BarChart3
+    BarChart3,
+    DollarSign,
+    PackageCheck
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -52,6 +54,11 @@ const mainNavItems: NavItem[] = [
         icon: Hammer,
     },
     {
+        title: 'Finished Products',
+        href: '/admin/finished-products',
+        icon: PackageCheck,
+    },
+    {
         title: 'Inventory',
         href: '/admin/inventory',
         icon: Package,
@@ -65,6 +72,11 @@ const mainNavItems: NavItem[] = [
         title: 'Suppliers',
         href: '/admin/suppliers',
         icon: Truck,
+    },
+    {
+        title: 'Rug Pricing',
+        href: '/admin/rug-pricing',
+        icon: DollarSign,
     },
     {
         title: 'Accounting',

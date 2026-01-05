@@ -177,7 +177,7 @@ export default function ClientsIndex() {
         {
             header: 'Actions',
             accessor: (row) => (
-                <div className="flex gap-1 justify-end">
+                <div className="flex gap-2 justify-end">
                     <Button
                         variant="ghost"
                         size="sm"
@@ -185,7 +185,7 @@ export default function ClientsIndex() {
                             e.stopPropagation();
                             handleClientClick(row);
                         }}
-                        className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-sm"
                     >
                         <EyeIcon className="h-4 w-4" />
                     </Button>
@@ -197,7 +197,7 @@ export default function ClientsIndex() {
                             setSelectedClient(row);
                             setShowEditModal(true);
                         }}
-                        className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                        className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-sm"
                     >
                         <PencilIcon className="h-4 w-4" />
                     </Button>
@@ -208,7 +208,7 @@ export default function ClientsIndex() {
                             e.stopPropagation();
                             handleDelete(row.id);
                         }}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-sm"
                     >
                         <TrashIcon className="h-4 w-4" />
                     </Button>
@@ -232,7 +232,7 @@ export default function ClientsIndex() {
                             </p>
                         </div>
 
-                        <Button onClick={() => setShowCreateModal(true)}>
+<Button onClick={() => setShowCreateModal(true)} className="rounded-full">
                             <svg
                                 className="w-4 h-4 mr-2"
                                 fill="none"
@@ -251,82 +251,89 @@ export default function ClientsIndex() {
 
                     </div>
 
-                    <div className="mb-6 flex gap-4 flex-wrap">
-                        <Input
-                            type="text"
-                            placeholder="Search all..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="max-w-xs"
-                        />
-                        <Input
-                            type="text"
-                            placeholder="Filter by phone..."
-                            value={phoneFilter}
-                            onChange={(e) => setPhoneFilter(e.target.value)}
-                            className="max-w-xs"
-                        />
-                        <Input
-                            type="text"
-                            placeholder="Filter by name..."
-                            value={nameFilter}
-                            onChange={(e) => setNameFilter(e.target.value)}
-                            className="max-w-xs"
-                        />
-                        <Input
-                            type="text"
-                            placeholder="Filter by email..."
-                            value={emailFilter}
-                            onChange={(e) => setEmailFilter(e.target.value)}
-                            className="max-w-xs"
-                        />
-                        {(searchQuery || phoneFilter || emailFilter || nameFilter) && (
-                            <Button 
-                                variant="outline" 
-                                onClick={() => {
-                                    setSearchQuery('');
-                                    setPhoneFilter('');
-                                    setEmailFilter('');
-                                    setNameFilter('');
-                                }}
-                            >
-                                Clear Filters
-                            </Button>
-                        )}
+                    {/* Filters Card */}
+                    <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
+                        <div className="flex gap-4 flex-wrap">
+                            <Input
+                                type="text"
+                                placeholder="Search all..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="max-w-xs"
+                            />
+                            <Input
+                                type="text"
+                                placeholder="Filter by phone..."
+                                value={phoneFilter}
+                                onChange={(e) => setPhoneFilter(e.target.value)}
+                                className="max-w-xs"
+                            />
+                            <Input
+                                type="text"
+                                placeholder="Filter by name..."
+                                value={nameFilter}
+                                onChange={(e) => setNameFilter(e.target.value)}
+                                className="max-w-xs"
+                            />
+                            <Input
+                                type="text"
+                                placeholder="Filter by email..."
+                                value={emailFilter}
+                                onChange={(e) => setEmailFilter(e.target.value)}
+                                className="max-w-xs"
+                            />
+                            {(searchQuery || phoneFilter || emailFilter || nameFilter) && (
+                                <Button 
+                                    variant="outline" 
+                                    className="rounded-full"
+                                    onClick={() => {
+                                        setSearchQuery('');
+                                        setPhoneFilter('');
+                                        setEmailFilter('');
+                                        setNameFilter('');
+                                    }}
+                                >
+                                    Clear Filters
+                                </Button>
+                            )}
+                        </div>
                     </div>
 
-                    {items.length === 0 && !loading ? (
-                        <EmptyState
-                            icon={EmptyIcons.Users}
-                            title="No clients yet"
-                            description="Get started by adding your first client to the system."
-                            action={{
-                                label: 'Add First Client',
-                                onClick: () => setShowCreateModal(true),
-                            }}
-                        />
-                    ) : (
-                        <>
-                            <DataTable
-                                data={items}
-                                columns={columns}
-                                loading={loading}
-                                onRowClick={handleClientClick}
-                                sortable={true}
-                                sortField={sortField}
-                                sortDirection={sortDirection}
-                                onSort={handleSort}
+                    {/* Table Card */}
+                    <div className="rounded-2xl border border-gray-200 bg-white p-6">
+                        {items.length === 0 && !loading ? (
+                            <EmptyState
+                                icon={EmptyIcons.Users}
+                                title="No clients yet"
+                                description="Get started by adding your first client to the system."
+                                action={{
+                                    label: 'Add First Client',
+                                    onClick: () => setShowCreateModal(true),
+                                }}
                             />
+                        ) : (
+                            <>
+                                <DataTable
+                                    data={items}
+                                    columns={columns}
+                                    loading={loading}
+                                    onRowClick={handleClientClick}
+                                    sortable={true}
+                                    sortField={sortField}
+                                    sortDirection={sortDirection}
+                                    onSort={handleSort}
+                                />
 
-                            <Pagination
-                                currentPage={pagination.current_page}
-                                lastPage={pagination.last_page}
-                                total={pagination.total}
-                                perPage={pagination.per_page}
-                                onPageChange={handlePageChange}
-                            />
-                        </>
-                    )}
+                                <Pagination
+                                    currentPage={pagination.current_page}
+                                    lastPage={pagination.last_page}
+                                    total={pagination.total}
+                                    perPage={pagination.per_page}
+                                    onPageChange={handlePageChange}
+                                />
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
 

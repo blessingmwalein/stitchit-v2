@@ -17,6 +17,21 @@
             line-height: 1.6;
             padding: 40px;
             background: #fff;
+            position: relative;
+        }
+        
+        /* Watermark */
+        body::before {
+            content: "STITCHIT TUFTING";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 100px;
+            font-weight: bold;
+            color: rgba(255, 138, 80, 0.05);
+            z-index: -1;
+            white-space: nowrap;
         }
         
         .header {
@@ -24,6 +39,12 @@
             margin-bottom: 40px;
             padding-bottom: 20px;
             border-bottom: 4px solid #FF8A50;
+        }
+        
+        .logo {
+            width: 150px;
+            height: auto;
+            margin-bottom: 20px;
         }
         
         .company-name {
@@ -284,8 +305,7 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <div class="company-name">STITCHIT TUFTING</div>
-        <div class="company-tagline">Custom Tufted Rugs & Designs</div>
+        <img src="{{ public_path('STICHIT-01.png') }}" alt="Stitchit Tufting Logo" class="logo">
     </div>
     
     <!-- Order Title -->
@@ -340,8 +360,18 @@
                 </div>
             </div>
             <div class="info-row">
-                <div class="info-label">Deposit Required:</div>
-                <div class="info-value">${{ number_format($order->deposit_required_amount, 2) }} ({{ $order->deposit_percent }}%)</div>
+                <div class="info-label">Deposit Paid:</div>
+                <div class="info-value">
+                    @php
+                        $depositPaid = $order->payments->where('type', 'deposit')->sum('amount');
+                    @endphp
+                    ${{ number_format($depositPaid, 2) }}
+                    @if($depositPaid > 0)
+                        <span style="font-size: 11px; color: #4CAF50; font-weight: bold;">(PAID)</span>
+                    @else
+                        <span style="font-size: 11px; color: #999;">(Required: ${{ number_format($order->deposit_required_amount, 2) }} - {{ $order->deposit_percent }}%)</span>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

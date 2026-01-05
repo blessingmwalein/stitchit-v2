@@ -31,7 +31,15 @@ function SelectTrigger({
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
       className={cn(
-        "border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive flex h-9 w-full items-center justify-between rounded-full border bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&>span]:line-clamp-1",
+        "flex h-10 w-full items-center justify-between rounded-full border border-gray-300 bg-white px-3.5 py-2 text-sm shadow-sm transition-colors outline-none",
+        "placeholder:text-muted-foreground data-[placeholder]:text-muted-foreground",
+        "[&_svg:not([class*='text-'])]:text-muted-foreground",
+        "focus:border-ring focus:ring-2 focus:ring-ring/20",
+        "aria-invalid:border-destructive aria-invalid:ring-destructive/20",
+        "disabled:cursor-not-allowed disabled:bg-gray-100 disabled:opacity-60",
+        "dark:bg-gray-800 dark:border-gray-700 dark:text-foreground",
+        "*:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2",
+        "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&>span]:line-clamp-1",
         className
       )}
       {...props}

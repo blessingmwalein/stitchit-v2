@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\JournalEntryController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\RugPricingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -61,6 +62,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('production', [ProductionController::class, 'index'])->name('production.index');
     Route::get('production/create', [ProductionController::class, 'create'])->name('production.create');
     Route::post('production', [ProductionController::class, 'store'])->name('production.store');
+    Route::post('production/estimate-materials', [ProductionController::class, 'estimateMaterials'])->name('production.estimate-materials');
     Route::get('production/{id}', [ProductionController::class, 'show'])->name('production.show');
     Route::put('production/{id}', [ProductionController::class, 'update'])->name('production.update');
     Route::delete('production/{id}', [ProductionController::class, 'destroy'])->name('production.destroy');
@@ -70,6 +72,19 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::put('production/{id}/consume/{consumptionId}', [ProductionController::class, 'updateConsumption'])->name('production.consume.update');
     Route::delete('production/{id}/consume/{consumptionId}', [ProductionController::class, 'deleteConsumption'])->name('production.consume.delete');
     Route::post('production/{id}/assign', [ProductionController::class, 'assign'])->name('production.assign');
+    Route::post('production/{id}/estimate', [ProductionController::class, 'saveEstimate'])->name('production.save-estimate');
+    Route::post('production/{id}/complete', [ProductionController::class, 'complete'])->name('production.complete');
+    Route::post('production/{id}/finished-product', [\App\Http\Controllers\Admin\FinishedProductController::class, 'storeFromJob'])->name('production.finished-product.store');
+
+
+    // Finished Products
+    Route::get('finished-products', [\App\Http\Controllers\Admin\FinishedProductController::class, 'index'])->name('finished-products.index');
+    Route::get('finished-products/{id}', [\App\Http\Controllers\Admin\FinishedProductController::class, 'show'])->name('finished-products.show');
+    Route::post('finished-products/standalone', [\App\Http\Controllers\Admin\FinishedProductController::class, 'storeStandalone'])->name('finished-products.standalone');
+    Route::post('finished-products/from-job/{jobId}', [\App\Http\Controllers\Admin\FinishedProductController::class, 'storeFromJob'])->name('finished-products.from-job');
+    Route::put('finished-products/{id}', [\App\Http\Controllers\Admin\FinishedProductController::class, 'update'])->name('finished-products.update');
+    Route::post('finished-products/{id}/publish', [\App\Http\Controllers\Admin\FinishedProductController::class, 'publish'])->name('finished-products.publish');
+    Route::post('finished-products/{id}/unpublish', [\App\Http\Controllers\Admin\FinishedProductController::class, 'unpublish'])->name('finished-products.unpublish');
 
     // Purchases
     Route::get('purchases', [PurchaseController::class, 'index'])->name('purchases.index');
@@ -117,6 +132,18 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('accounting/reports/income-statement', [ReportController::class, 'incomeStatement'])->name('accounting.reports.income-statement');
     Route::get('accounting/reports/balance-sheet', [ReportController::class, 'balanceSheet'])->name('accounting.reports.balance-sheet');
     Route::get('accounting/reports/manufacturing-account', [ReportController::class, 'manufacturingAccount'])->name('accounting.reports.manufacturing-account');
+
+    // Rug Pricing
+    Route::get('rug-pricing', [RugPricingController::class, 'index'])->name('admin.rug-pricing.index');
+    Route::get('rug-pricing/recipes', [RugPricingController::class, 'getRecipes'])->name('admin.rug-pricing.recipes');
+    Route::get('rug-pricing/create', [RugPricingController::class, 'create'])->name('admin.rug-pricing.create');
+    Route::post('rug-pricing', [RugPricingController::class, 'store'])->name('admin.rug-pricing.store');
+    Route::get('rug-pricing/calculator', [RugPricingController::class, 'calculator'])->name('admin.rug-pricing.calculator');
+    Route::post('rug-pricing/calculate', [RugPricingController::class, 'calculate'])->name('admin.rug-pricing.calculate');
+    Route::get('rug-pricing/{id}/edit', [RugPricingController::class, 'edit'])->name('admin.rug-pricing.edit');
+    Route::put('rug-pricing/{id}', [RugPricingController::class, 'update'])->name('admin.rug-pricing.update');
+    Route::delete('rug-pricing/{id}', [RugPricingController::class, 'destroy'])->name('admin.rug-pricing.destroy');
+    Route::get('rug-pricing/{id}/analyze', [RugPricingController::class, 'analyzeReference'])->name('admin.rug-pricing.analyze');
 });
 
 require __DIR__.'/settings.php';

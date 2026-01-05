@@ -238,7 +238,7 @@ export default function ExpensesIndex() {
     {
       header: 'Actions',
       accessor: (row) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-end">
           <Button
             variant="ghost"
             size="icon"
@@ -246,7 +246,7 @@ export default function ExpensesIndex() {
               e.stopPropagation();
               handleEdit(row);
             }}
-            className="h-8 w-8 rounded-full"
+            className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-sm"
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -257,9 +257,9 @@ export default function ExpensesIndex() {
               e.stopPropagation();
               handleDelete(row);
             }}
-            className="h-8 w-8 rounded-full"
+            className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-sm"
           >
-            <Trash2 className="h-4 w-4 text-red-600" />
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       ),
@@ -283,7 +283,7 @@ export default function ExpensesIndex() {
             <Button onClick={() => {
               setSelectedExpense(null);
               setShowModal(true);
-            }}>
+            }} className="rounded-full">
               <Plus className="w-4 h-4 mr-2" />
               Record Expense
             </Button>
@@ -363,7 +363,8 @@ export default function ExpensesIndex() {
             </Card>
           </div>
 
-          <div className="mb-6 space-y-4">
+          {/* Filters Card */}
+          <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
             <div className="flex gap-4 flex-wrap">
               <Input
                 type="text"
@@ -441,6 +442,7 @@ export default function ExpensesIndex() {
               {(searchQuery || (categoryFilter && categoryFilter !== 'all') || (paymentMethodFilter && paymentMethodFilter !== 'all') || dateFrom || dateTo) && (
                 <Button
                   variant="outline"
+                  className="rounded-full"
                   onClick={() => {
                     setSearchQuery('');
                     setCategoryFilter('');
@@ -456,41 +458,44 @@ export default function ExpensesIndex() {
             </div>
           </div>
 
-          {items.length === 0 && !loading ? (
-            <EmptyState
-              icon={EmptyIcons.Receipt}
-              title="No expenses recorded"
-              description="Start tracking your operational expenses by recording your first expense."
-              action={{
-                label: 'Record Expense',
-                onClick: () => {
-                  setSelectedExpense(null);
-                  setShowModal(true);
-                },
-              }}
-            />
-          ) : (
-            <>
-              <DataTable
-                data={items}
-                columns={columns}
-                loading={loading}
-                onRowClick={handleRowClick}
-                sortable={true}
-                sortField={sortField}
-                sortDirection={sortDirection}
-                onSort={handleSort}
+          {/* Table Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            {items.length === 0 && !loading ? (
+              <EmptyState
+                icon={EmptyIcons.Receipt}
+                title="No expenses recorded"
+                description="Start tracking your operational expenses by recording your first expense."
+                action={{
+                  label: 'Record Expense',
+                  onClick: () => {
+                    setSelectedExpense(null);
+                    setShowModal(true);
+                  },
+                }}
               />
+            ) : (
+              <>
+                <DataTable
+                  data={items}
+                  columns={columns}
+                  loading={loading}
+                  onRowClick={handleRowClick}
+                  sortable={true}
+                  sortField={sortField}
+                  sortDirection={sortDirection}
+                  onSort={handleSort}
+                />
 
-              <Pagination
-                currentPage={pagination.current_page}
-                lastPage={pagination.last_page}
-                total={pagination.total}
-                perPage={pagination.per_page}
-                onPageChange={handlePageChange}
-              />
-            </>
-          )}
+                <Pagination
+                  currentPage={pagination.current_page}
+                  lastPage={pagination.last_page}
+                  total={pagination.total}
+                  perPage={pagination.per_page}
+                  onPageChange={handlePageChange}
+                />
+              </>
+            )}
+          </div>
         </div>
       </div>
 

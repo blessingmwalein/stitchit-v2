@@ -239,7 +239,7 @@ export default function JournalEntriesIndex() {
         {
             header: 'Actions',
             accessor: (row) => (
-                <div className="flex gap-2">
+                <div className="flex gap-2 justify-end">
                     <Button
                         variant="ghost"
                         size="icon"
@@ -247,7 +247,7 @@ export default function JournalEntriesIndex() {
                             e.stopPropagation();
                             handleRowClick(row);
                         }}
-                        className="h-8 w-8 rounded-full"
+                        className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-sm"
                     >
                         <Eye className="h-4 w-4" />
                     </Button>
@@ -259,9 +259,9 @@ export default function JournalEntriesIndex() {
                                 e.stopPropagation();
                                 handleVoid(row);
                             }}
-                            className="h-8 w-8 rounded-full"
+                            className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-sm"
                         >
-                            <XCircle className="h-4 w-4 text-red-600" />
+                            <XCircle className="h-4 w-4" />
                         </Button>
                     )}
                 </div>
@@ -283,7 +283,7 @@ export default function JournalEntriesIndex() {
                             View and manage accounting journal entries
                         </p>
                     </div>
-                    <Button>
+                    <Button className="rounded-full">
                         <Plus className="mr-2 h-4 w-4" />
                         New Entry
                     </Button>
@@ -362,105 +362,109 @@ export default function JournalEntriesIndex() {
                     </Card>
                 </div>
 
-                {/* Filters */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
-                    <div className="md:col-span-2">
-                        <Input
-                            placeholder="Search journal entries..."
-                            value={searchQuery}
-                            onChange={(e) => {
-                                setSearchQuery(e.target.value);
-                                handleFilterChange({ search: e.target.value });
-                            }}
-                        />
-                    </div>
-                    <Select value={typeFilter} onValueChange={(value) => {
-                        setTypeFilter(value);
-                        handleFilterChange({ type: value });
-                    }}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Types</SelectItem>
-                            <SelectItem value="GENERAL">General</SelectItem>
-                            <SelectItem value="SALES">Sales</SelectItem>
-                            <SelectItem value="PURCHASE">Purchase</SelectItem>
-                            <SelectItem value="PAYMENT">Payment</SelectItem>
-                            <SelectItem value="RECEIPT">Receipt</SelectItem>
-                            <SelectItem value="EXPENSE">Expense</SelectItem>
-                            <SelectItem value="ADJUSTMENT">Adjustment</SelectItem>
-                            <SelectItem value="DEPRECIATION">Depreciation</SelectItem>
-                            <SelectItem value="INVENTORY">Inventory</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Select value={statusFilter} onValueChange={(value) => {
-                        setStatusFilter(value);
-                        handleFilterChange({ status: value });
-                    }}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="DRAFT">Draft</SelectItem>
-                            <SelectItem value="POSTED">Posted</SelectItem>
-                            <SelectItem value="VOID">Void</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <div className="flex gap-2">
-                        <DatePicker
-                            date={dateFrom}
-                            onDateChange={(date) => {
-                                setDateFrom(date);
-                                handleFilterChange({ date_from: date ? format(date, 'yyyy-MM-dd') : '' });
-                            }}
-                            placeholder="From"
-                        />
-                        <DatePicker
-                            date={dateTo}
-                            onDateChange={(date) => {
-                                setDateTo(date);
-                                handleFilterChange({ date_to: date ? format(date, 'yyyy-MM-dd') : '' });
-                            }}
-                            placeholder="To"
-                        />
+                {/* Filters Card */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-6">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+                        <div className="md:col-span-2">
+                            <Input
+                                placeholder="Search journal entries..."
+                                value={searchQuery}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
+                                    handleFilterChange({ search: e.target.value });
+                                }}
+                            />
+                        </div>
+                        <Select value={typeFilter} onValueChange={(value) => {
+                            setTypeFilter(value);
+                            handleFilterChange({ type: value });
+                        }}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Types</SelectItem>
+                                <SelectItem value="GENERAL">General</SelectItem>
+                                <SelectItem value="SALES">Sales</SelectItem>
+                                <SelectItem value="PURCHASE">Purchase</SelectItem>
+                                <SelectItem value="PAYMENT">Payment</SelectItem>
+                                <SelectItem value="RECEIPT">Receipt</SelectItem>
+                                <SelectItem value="EXPENSE">Expense</SelectItem>
+                                <SelectItem value="ADJUSTMENT">Adjustment</SelectItem>
+                                <SelectItem value="DEPRECIATION">Depreciation</SelectItem>
+                                <SelectItem value="INVENTORY">Inventory</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Select value={statusFilter} onValueChange={(value) => {
+                            setStatusFilter(value);
+                            handleFilterChange({ status: value });
+                        }}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Status</SelectItem>
+                                <SelectItem value="DRAFT">Draft</SelectItem>
+                                <SelectItem value="POSTED">Posted</SelectItem>
+                                <SelectItem value="VOID">Void</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <div className="flex gap-2">
+                            <DatePicker
+                                date={dateFrom}
+                                onDateChange={(date) => {
+                                    setDateFrom(date);
+                                    handleFilterChange({ date_from: date ? format(date, 'yyyy-MM-dd') : '' });
+                                }}
+                                placeholder="From"
+                            />
+                            <DatePicker
+                                date={dateTo}
+                                onDateChange={(date) => {
+                                    setDateTo(date);
+                                    handleFilterChange({ date_to: date ? format(date, 'yyyy-MM-dd') : '' });
+                                }}
+                                placeholder="To"
+                            />
+                        </div>
                     </div>
                 </div>
 
-                {/* Table */}
-                {items.length > 0 || loading ? (
-                    <>
-                        <DataTable
-                            data={items}
-                            columns={columns}
-                            loading={loading}
-                            onRowClick={handleRowClick}
-                            sortable
-                            sortField={sortField}
-                            sortDirection={sortDirection}
-                            onSort={handleSort}
-                        />
+                {/* Table Card */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-6">
+                    {items.length > 0 || loading ? (
+                        <>
+                            <DataTable
+                                data={items}
+                                columns={columns}
+                                loading={loading}
+                                onRowClick={handleRowClick}
+                                sortable
+                                sortField={sortField}
+                                sortDirection={sortDirection}
+                                onSort={handleSort}
+                            />
 
-                        <Pagination
-                            currentPage={pagination.current_page}
-                            lastPage={pagination.last_page}
-                            total={pagination.total}
-                            perPage={pagination.per_page}
-                            onPageChange={handlePageChange}
+                            <Pagination
+                                currentPage={pagination.current_page}
+                                lastPage={pagination.last_page}
+                                total={pagination.total}
+                                perPage={pagination.per_page}
+                                onPageChange={handlePageChange}
+                            />
+                        </>
+                    ) : (
+                        <EmptyState
+                            icon={EmptyIcons.File}
+                            title="No journal entries"
+                            description="Journal entries are automatically created from transactions or you can create manual entries."
+                            action={{
+                                label: 'Create Entry',
+                                onClick: () => {},
+                            }}
                         />
-                    </>
-                ) : (
-                    <EmptyState
-                        icon={EmptyIcons.File}
-                        title="No journal entries"
-                        description="Journal entries are automatically created from transactions or you can create manual entries."
-                        action={{
-                            label: 'Create Entry',
-                            onClick: () => {},
-                        }}
-                    />
-                )}
+                    )}
+                </div>
             </div>
 
             {/* Journal Entry Detail Drawer */}

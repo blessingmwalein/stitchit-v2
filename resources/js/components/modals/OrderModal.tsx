@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,13 +7,23 @@ import { useAppDispatch } from '@/store/hooks';
 import { showNotification } from '@/store/slices/uiSlice';
 import axios from 'axios';
 import { Badge } from '@/components/ui/badge';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Calculator } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface Client {
   id: number;
   display_name: string;
+  full_name?: string;
+  nickname?: string;
   phone: string;
+}
+
+interface Recipe {
+  id: number;
+  name: string;
+  description: string;
+  profit_margin_percentage: number;
+  is_active: boolean;
 }
 
 interface OrderItem {
@@ -28,7 +38,13 @@ interface OrderItem {
   total_price: number;
   design_image?: File | null;
   design_image_preview?: string;
+  recipe_id?: number | null;
+  calculating?: boolean;
   existing_image_path?: string;
+  profit_percentage?: number;
+  material_cost?: number;
+  profit_amount?: number;
+  cost_per_sqcm?: number;
 }
 
 interface Order {
@@ -71,6 +87,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [clients, setClients] = useState<Client[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -88,11 +105,16 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
       total_price: 0,
       design_image: null,
       design_image_preview: undefined,
+      recipe_id: null,
+      calculating: false,
     },
   ]);
 
   useEffect(() => {
     if (open) {
+      // Fetch recipes
+      fetchRecipes();
+      
       if (order) {
         // Edit mode - prefill with existing order data
         setStep(2);
@@ -162,6 +184,21 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
     }
   };
 
+  const fetchRecipes = async () => {
+    try {
+      const response = await axios.get('/admin/rug-pricing/recipes');
+      // API returns { success: true, data: recipes }
+      const recipesData = response.data.data || [];
+      setRecipes(recipesData.filter((r: Recipe) => r.is_active));
+    } catch (error) {
+      console.error('Failed to fetch recipes', error);
+      dispatch(showNotification({
+        type: 'error',
+        message: 'Failed to load recipes',
+      }));
+    }
+  };
+
   const fetchClient = async (clientId: number) => {
     try {
       const response = await axios.get(`/admin/clients/${clientId}`);
@@ -203,11 +240,12 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
     }
 
     const total_price = area_sqm * quantity * plannedPrice;
+    const rounded_total = Math.round(total_price / 10) * 10;
 
     return {
       ...item,
       area_sqm: Number(area_sqm.toFixed(4)),
-      total_price: Number(total_price.toFixed(2)),
+      total_price: Number(rounded_total.toFixed(2)),
     };
   };
 
@@ -216,11 +254,114 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
       prev.map((item) => {
         if (item.id === itemId) {
           const updated = { ...item, [field]: value };
+          
+          // If recipe is selected, set default profit percentage and auto-calculate
+          if (field === 'recipe_id' && value) {
+            updated.profit_percentage = 73; // Default profit margin
+            calculatePriceFromRecipe(itemId, value as number);
+            return updated as OrderItem;
+          }
+          
+          // If dimensions or unit changed and recipe is selected, recalculate
+          if (item.recipe_id && (field === 'width' || field === 'height' || field === 'unit')) {
+            // Update the value first
+            const itemWithUpdate = calculateItemTotals(updated) as OrderItem;
+            // Then trigger recalculation if we have valid dimensions
+            if (itemWithUpdate.width > 0 && itemWithUpdate.height > 0) {
+              setTimeout(() => calculatePriceFromRecipe(itemId, item.recipe_id!), 100);
+            }
+            return itemWithUpdate;
+          }
+          
           return calculateItemTotals(updated) as OrderItem;
         }
         return item;
       })
     );
+  };
+
+  const calculatePriceFromRecipe = async (itemId: string, recipeId: number) => {
+    const item = orderItems.find(i => i.id === itemId);
+    if (!item || !item.width || !item.height) {
+      dispatch(showNotification({
+        type: 'error',
+        message: 'Please enter width and height first',
+      }));
+      return;
+    }
+
+    // Convert dimensions to cm for the API
+    let widthCm = item.width;
+    let heightCm = item.height;
+    
+    if (item.unit === 'm') {
+      widthCm = item.width * 100;
+      heightCm = item.height * 100;
+    } else if (item.unit === 'in') {
+      widthCm = item.width * 2.54;
+      heightCm = item.height * 2.54;
+    } else if (item.unit === 'ft') {
+      widthCm = item.width * 30.48;
+      heightCm = item.height * 30.48;
+    }
+
+    // Set calculating state
+    setOrderItems((prev) =>
+      prev.map((i) => i.id === itemId ? { ...i, calculating: true } : i)
+    );
+
+    try {
+      const requestData: any = {
+        recipe_id: recipeId,
+        width_cm: widthCm,
+        height_cm: heightCm,
+      };
+
+      // Include custom profit percentage if provided
+      if (item.profit_percentage !== undefined && item.profit_percentage !== null) {
+        requestData.profit_margin_percentage = item.profit_percentage;
+      }
+
+      const response = await axios.post('/admin/rug-pricing/calculate', requestData);
+
+      if (response.data.success) {
+        const result = response.data.data;
+        const pricePerSqm = result.final_price / result.area_sqcm * 10000;
+        const costPerSqcm = result.total_material_cost / result.area_sqcm;
+        const profitPerSqcm = result.final_price / result.area_sqcm - costPerSqcm;
+        
+        setOrderItems((prev) =>
+          prev.map((i) => {
+            if (i.id === itemId) {
+              const updated = {
+                ...i,
+                planned_price: Number(pricePerSqm.toFixed(2)),
+                material_cost: Number(costPerSqcm.toFixed(8)),
+                cost_per_sqcm: Number(result.total_material_cost.toFixed(8)),
+                profit_amount: Number(profitPerSqcm.toFixed(8)),
+                calculating: false,
+              };
+              return calculateItemTotals(updated) as OrderItem;
+            }
+            return i;
+          })
+        );
+
+        dispatch(showNotification({
+          type: 'success',
+          message: `Price calculated: $${result.final_price.toFixed(2)} (Cost: $${result.total_material_cost.toFixed(2)})`,
+        }));
+      }
+    } catch (error: any) {
+      setOrderItems((prev) =>
+        prev.map((i) => i.id === itemId ? { ...i, calculating: false } : i)
+      );
+      
+      dispatch(showNotification({
+        type: 'error',
+        message: error.response?.data?.message || 'Failed to calculate price',
+      }));
+    }
   };
 
   const addOrderItem = () => {
@@ -363,7 +504,8 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
         formData.append(`items[${index}][height]`, item.height.toString());
         formData.append(`items[${index}][unit]`, item.unit);
         formData.append(`items[${index}][quantity]`, item.quantity.toString());
-        formData.append(`items[${index}][planned_price]`, item.planned_price.toString());
+        // Submit total price (price per m² × area × quantity), not just price per m²
+        formData.append(`items[${index}][planned_price]`, item.total_price.toString());
         
         // Include existing image path if no new image uploaded
         if (item.existing_image_path && !item.design_image) {
@@ -427,6 +569,9 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
               </Badge>
             )}
           </DialogTitle>
+          <DialogDescription>
+            {order ? 'Update order details and items' : step === 1 ? 'Select a client to create an order' : 'Add order items with dimensions and pricing'}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Step 1: Select Client */}
@@ -439,6 +584,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 disabled={!!preselectedClientId}
+                className="rounded-xl"
               />
               {errors.client && <p className="text-sm text-red-600">{errors.client}</p>}
             </div>
@@ -472,8 +618,17 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
                     onClick={() => setSelectedClient(client)}
                     className="rounded-lg border border-gray-200 p-3 cursor-pointer hover:border-[#FF8A50] hover:bg-orange-50 transition-all"
                   >
-                    <p className="font-medium text-gray-900">{client.display_name}</p>
-                    <p className="text-sm text-gray-600">{client.phone}</p>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {client.full_name || client.display_name}
+                          {client.nickname && client.full_name && (
+                            <span className="ml-2 text-sm text-gray-500">({client.nickname})</span>
+                          )}
+                        </p>
+                        <p className="text-sm text-gray-600">{client.phone}</p>
+                      </div>
+                    </div>
                   </div>
                 ))}
                 {searchQuery && clients.length === 0 && (
@@ -516,9 +671,72 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
                       value={item.description}
                       onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
                       placeholder="e.g., Custom tufted rug with floral pattern"
+                      className="rounded-xl"
                     />
                     {errors[`item_${index}_description`] && (
                       <p className="text-sm text-red-600">{errors[`item_${index}_description`]}</p>
+                    )}
+                  </div>
+
+                  {/* Recipe Selector */}
+                  <div className="space-y-2">
+                    <Label htmlFor={`recipe-${item.id}`}>
+                      Pricing Recipe (Optional)
+                      <span className="ml-2 text-xs text-blue-600">Auto-calculate price</span>
+                    </Label>
+                    <div className="flex gap-2">
+                      <Select
+                        value={item.recipe_id?.toString() || 'none'}
+                        onValueChange={(value) => handleItemChange(item.id, 'recipe_id', value !== 'none' ? Number(value) : null)}
+                      >
+                        <SelectTrigger id={`recipe-${item.id}`} className="flex-1">
+                          <SelectValue placeholder="Select a recipe to auto-calculate price" />
+                        </SelectTrigger>
+                        <SelectContent position="popper" sideOffset={5} className="z-[10001]">
+                          <SelectItem value="none">Manual pricing</SelectItem>
+                          {recipes.map((recipe) => (
+                            <SelectItem key={recipe.id} value={recipe.id.toString()}>
+                              {recipe.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {item.recipe_id && item.width && item.height && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => calculatePriceFromRecipe(item.id, item.recipe_id!)}
+                          disabled={item.calculating}
+                          className="shrink-0"
+                        >
+                          <Calculator className="h-4 w-4 mr-1" />
+                          {item.calculating ? 'Calculating...' : 'Calculate'}
+                        </Button>
+                      )}
+                    </div>
+                    {item.recipe_id && (!item.width || !item.height) && (
+                      <p className="text-xs text-amber-600">Enter width and height, then click Calculate</p>
+                    )}
+                    
+                    {/* Custom Profit Percentage */}
+                    {item.recipe_id && (
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        <div className="space-y-2">
+                          <Label htmlFor={`profit-${item.id}`} className="text-sm">
+                            Custom Profit % (Optional)
+                          </Label>
+                          <Input
+                            id={`profit-${item.id}`}
+                            type="number"
+                            step="0.1"
+                            value={item.profit_percentage || ''}
+                            onChange={(e) => handleItemChange(item.id, 'profit_percentage', e.target.value ? Number(e.target.value) : undefined)}
+                            placeholder="Override recipe profit"
+                            className="h-9 rounded-xl"
+                          />
+                        </div>
+                      </div>
                     )}
                   </div>
 
@@ -531,6 +749,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
                         value={item.width || ''}
                         onChange={(e) => handleItemChange(item.id, 'width', Number(e.target.value))}
                         placeholder="100"
+                        className="rounded-xl"
                       />
                       {errors[`item_${index}_width`] && (
                         <p className="text-sm text-red-600">{errors[`item_${index}_width`]}</p>
@@ -545,6 +764,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
                         value={item.height || ''}
                         onChange={(e) => handleItemChange(item.id, 'height', Number(e.target.value))}
                         placeholder="150"
+                        className="rounded-xl"
                       />
                       {errors[`item_${index}_height`] && (
                         <p className="text-sm text-red-600">{errors[`item_${index}_height`]}</p>
@@ -579,6 +799,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
                         value={item.quantity}
                         onChange={(e) => handleItemChange(item.id, 'quantity', Number(e.target.value))}
                         min="1"
+                        className="rounded-xl"
                       />
                       {errors[`item_${index}_quantity`] && (
                         <p className="text-sm text-red-600">{errors[`item_${index}_quantity`]}</p>
@@ -594,6 +815,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
                         value={item.planned_price || ''}
                         onChange={(e) => handleItemChange(item.id, 'planned_price', Number(e.target.value))}
                         placeholder="50.00"
+                        className="rounded-xl"
                       />
                       {errors[`item_${index}_unit_price`] && (
                         <p className="text-sm text-red-600">{errors[`item_${index}_unit_price`]}</p>
@@ -655,6 +877,24 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
                       </label>
                     )}
                   </div>
+
+                  {/* Cost Breakdown */}
+                  {item.recipe_id && item.material_cost && (
+                    <div className="rounded-lg bg-blue-50 border border-blue-200 p-3 space-y-1.5 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Material Cost/cm²:</span>
+                        <span className="font-medium text-gray-900">${item.material_cost.toFixed(8)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Profit/cm²:</span>
+                        <span className="font-medium text-green-600">${item.profit_amount?.toFixed(8) || '0.00000000'}</span>
+                      </div>
+                      <div className="flex justify-between pt-1.5 border-t border-blue-300">
+                        <span className="text-gray-700 font-medium">Sale Price/m²:</span>
+                        <span className="font-semibold text-blue-700">${item.planned_price.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex justify-between text-sm pt-2 border-t">
                     <span className="text-gray-600">Area: {item.area_sqm} m²</span>

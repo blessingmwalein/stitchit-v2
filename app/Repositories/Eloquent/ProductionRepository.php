@@ -35,7 +35,8 @@ class ProductionRepository extends BaseRepository implements ProductionRepositor
                 'orderItem.order.client', 
                 'assignee', 
                 'bomLines.inventoryItem',
-                'materialConsumptions.inventoryItem'
+                'materialConsumptions.inventoryItem',
+                'finishedProduct'
             ])
             ->withCount(['bomLines', 'materialConsumptions']);
 
