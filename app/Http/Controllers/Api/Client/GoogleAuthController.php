@@ -57,20 +57,9 @@ class GoogleAuthController extends Controller
      * Handle Google OAuth Callback
      * 
      * Receives the callback from Google after user authenticates.
-     * Returns user data for frontend to display in registration/login form.
-     * 
-     * @response 200 {
-     *   "success": true,
-     *   "data": {
-     *     "google_id": "1234567890",
-     *     "email": "user@gmail.com",
-     *     "full_name": "John Doe",
-     *     "avatar": "https://lh3.googleusercontent.com/...",
-     *     "existing_user": false
-     *   }
-     * }
+     * Stores auth data temporarily and redirects to frontend.
      */
-    public function handleGoogleCallback(): JsonResponse
+    public function handleGoogleCallback()
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
@@ -95,45 +84,97 @@ class GoogleAuthController extends Controller
                 $existingClient->tokens()->delete();
                 $token = $existingClient->createToken('mobile-app')->plainTextToken;
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Login successful',
-                    'data' => [
-                        'existing_user' => true,
-                        'client' => [
-                            'id' => $existingClient->id,
-                            'full_name' => $existingClient->full_name,
-                            'phone' => $existingClient->phone,
-                            'email' => $existingClient->email,
-                            'username' => $existingClient->username,
-                            'address' => $existingClient->address,
-                            'gender' => $existingClient->gender,
-                            'avatar' => $existingClient->avatar,
-                        ],
-                        'token' => $token,
+                // Generate temporary session key
+                $sessionKey = Str::random(40);
+                
+                // Store auth data in cache for 5 minutes
+                cache()->put("google_auth_{$sessionKey}", [
+                    'type' => 'login',
+                    'token' => $token,
+                    'client' => [
+                        'id' => $existingClient->id,
+                        'full_name' => $existingClient->full_name,
+                        'phone' => $existingClient->phone,
+                        'email' => $existingClient->email,
+                        'username' => $existingClient->username,
+                        'address' => $existingClient->address,
+                        'gender' => $existingClient->gender,
+                        'avatar' => $existingClient->avatar,
+                        'nickname' => $existingClient->nickname,
                     ],
-                ]);
+                ], now()->addMinutes(5));
+
+                // Redirect to frontend with session key
+                $redirectUrl = config('app.frontend_url') . '/auth/google/callback';
+                return redirect($redirectUrl . '?session=' . $sessionKey);
             }
 
-            // Return data for new user registration form
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'existing_user' => false,
-                    'google_id' => $googleUser->getId(),
-                    'email' => $googleUser->getEmail(),
-                    'full_name' => $googleUser->getName(),
-                    'avatar' => $googleUser->getAvatar(),
-                ],
-            ]);
+            // New user - generate session key for registration data
+            $sessionKey = Str::random(40);
+            
+            // Store Google user data in cache for 5 minutes
+            cache()->put("google_auth_{$sessionKey}", [
+                'type' => 'register',
+                'google_id' => $googleUser->getId(),
+                'email' => $googleUser->getEmail(),
+                'full_name' => $googleUser->getName(),
+                'avatar' => $googleUser->getAvatar(),
+            ], now()->addMinutes(5));
+
+            // Redirect to frontend with session key
+            $redirectUrl = config('app.frontend_url') . '/auth/google/callback';
+            return redirect($redirectUrl . '?session=' . $sessionKey);
 
         } catch (Exception $e) {
+            // Redirect to frontend with error
+            $redirectUrl = config('app.frontend_url') . '/auth/google/error';
+            $params = http_build_query([
+                'error' => 'Failed to authenticate with Google',
+                'message' => $e->getMessage(),
+            ]);
+
+            return redirect($redirectUrl . '?' . $params);
+        }
+    }
+
+    /**
+     * Exchange session key for auth data
+     * 
+     * Frontend calls this endpoint with the session key to get the actual auth data.
+     * 
+     * @bodyParam session string required The session key from redirect. Example: abc123xyz
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "data": {
+     *     "type": "login",
+     *     "token": "1|abcdef...",
+     *     "client": {...}
+     *   }
+     * }
+     */
+    public function exchangeSession(Request $request): JsonResponse
+    {
+        $request->validate([
+            'session' => ['required', 'string'],
+        ]);
+
+        $authData = cache()->get("google_auth_{$request->session}");
+
+        if (!$authData) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to authenticate with Google',
-                'error' => $e->getMessage(),
-            ], 500);
+                'message' => 'Invalid or expired session',
+            ], 400);
         }
+
+        // Delete the session after retrieving (one-time use)
+        cache()->forget("google_auth_{$request->session}");
+
+        return response()->json([
+            'success' => true,
+            'data' => $authData,
+        ]);
     }
 
     /**

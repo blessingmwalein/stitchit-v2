@@ -24,6 +24,7 @@ Route::prefix('auth')->group(function () {
     // Google OAuth routes
     Route::get('/google/redirect', [GoogleAuthController::class, 'redirectToGoogle']);
     Route::get('/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+    Route::post('/google/exchange-session', [GoogleAuthController::class, 'exchangeSession']);
     Route::post('/google/complete-registration', [GoogleAuthController::class, 'completeGoogleRegistration']);
     Route::post('/google/login', [GoogleAuthController::class, 'quickGoogleLogin']);
 });
