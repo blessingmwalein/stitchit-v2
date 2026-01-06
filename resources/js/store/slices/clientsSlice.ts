@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '@/axios';
 
 export interface Client {
   id: number;
@@ -46,7 +46,7 @@ const initialState: ClientsState = {
 export const fetchClients = createAsyncThunk(
   'clients/fetchClients',
   async (params: { page?: number; per_page?: number } = {}) => {
-    const response = await axios.get('/admin/clients', { 
+    const response = await api.get('/admin/clients', { 
       params,
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
@@ -59,7 +59,7 @@ export const fetchClients = createAsyncThunk(
 export const fetchClient = createAsyncThunk(
   'clients/fetchClient',
   async (id: number) => {
-    const response = await axios.get(`/admin/clients/${id}`);
+    const response = await api.get(`/admin/clients/${id}`);
     return response.data.data;
   }
 );
@@ -67,7 +67,7 @@ export const fetchClient = createAsyncThunk(
 export const createClient = createAsyncThunk(
   'clients/createClient',
   async (clientData: Partial<Client>) => {
-    const response = await axios.post('/admin/clients', clientData);
+    const response = await api.post('/admin/clients', clientData);
     return response.data.data;
   }
 );
@@ -75,7 +75,7 @@ export const createClient = createAsyncThunk(
 export const updateClient = createAsyncThunk(
   'clients/updateClient',
   async ({ id, data }: { id: number; data: Partial<Client> }) => {
-    const response = await axios.put(`/admin/clients/${id}`, data);
+    const response = await api.put(`/admin/clients/${id}`, data);
     return response.data.data;
   }
 );
@@ -83,7 +83,7 @@ export const updateClient = createAsyncThunk(
 export const deleteClient = createAsyncThunk(
   'clients/deleteClient',
   async (id: number) => {
-    await axios.delete(`/admin/clients/${id}`);
+    await api.delete(`/admin/clients/${id}`);
     return id;
   }
 );
@@ -91,7 +91,7 @@ export const deleteClient = createAsyncThunk(
 export const searchClients = createAsyncThunk(
   'clients/searchClients',
   async (query: string) => {
-    const response = await axios.get('/admin/clients/search', { params: { q: query } });
+    const response = await api.get('/admin/clients/search', { params: { q: query } });
     return response.data.data;
   }
 );

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '@/axios';
 
 export interface OrderItem {
   id: number;
@@ -91,7 +91,7 @@ const initialState: OrdersState = {
 export const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',
   async (params: { page?: number; per_page?: number; state?: string; client_id?: number; search?: string } = {}) => {
-    const response = await axios.get('/admin/orders', { 
+    const response = await api.get('/admin/orders', { 
       params,
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
@@ -104,7 +104,7 @@ export const fetchOrders = createAsyncThunk(
 export const fetchOrder = createAsyncThunk(
   'orders/fetchOrder',
   async (id: number) => {
-    const response = await axios.get(`/admin/orders/${id}`);
+    const response = await api.get(`/admin/orders/${id}`);
     return response.data.data;
   }
 );
@@ -112,7 +112,7 @@ export const fetchOrder = createAsyncThunk(
 export const createOrder = createAsyncThunk(
   'orders/createOrder',
   async (orderData: any) => {
-    const response = await axios.post('/admin/orders', orderData);
+    const response = await api.post('/admin/orders', orderData);
     return response.data.data;
   }
 );
@@ -120,7 +120,7 @@ export const createOrder = createAsyncThunk(
 export const updateOrder = createAsyncThunk(
   'orders/updateOrder',
   async ({ id, data }: { id: number; data: any }) => {
-    const response = await axios.put(`/admin/orders/${id}`, data);
+    const response = await api.put(`/admin/orders/${id}`, data);
     return response.data.data;
   }
 );
@@ -128,7 +128,7 @@ export const updateOrder = createAsyncThunk(
 export const transitionOrderState = createAsyncThunk(
   'orders/transitionState',
   async ({ id, state }: { id: number; state: string }) => {
-    const response = await axios.post(`/admin/orders/${id}/transition`, { state });
+    const response = await api.post(`/admin/orders/${id}/transition`, { state });
     return response.data.data;
   }
 );
@@ -136,7 +136,7 @@ export const transitionOrderState = createAsyncThunk(
 export const recordPayment = createAsyncThunk(
   'orders/recordPayment',
   async ({ id, paymentData }: { id: number; paymentData: any }) => {
-    const response = await axios.post(`/admin/orders/${id}/payment`, paymentData);
+    const response = await api.post(`/admin/orders/${id}/payment`, paymentData);
     return response.data.data;
   }
 );
@@ -144,7 +144,7 @@ export const recordPayment = createAsyncThunk(
 export const convertToProduction = createAsyncThunk(
   'orders/convertToProduction',
   async (id: number) => {
-    const response = await axios.post(`/admin/orders/${id}/convert-to-production`);
+    const response = await api.post(`/admin/orders/${id}/convert-to-production`);
     return response.data.data;
   }
 );
@@ -152,7 +152,7 @@ export const convertToProduction = createAsyncThunk(
 export const deleteOrder = createAsyncThunk(
   'orders/deleteOrder',
   async (id: number) => {
-    await axios.delete(`/admin/orders/${id}`);
+    await api.delete(`/admin/orders/${id}`);
     return id;
   }
 );

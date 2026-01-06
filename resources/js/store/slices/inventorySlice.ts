@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '@/axios';
 
 export interface InventoryItem {
   id: number;
@@ -51,7 +51,7 @@ const initialState: InventoryState = {
 export const fetchInventory = createAsyncThunk(
   'inventory/fetchInventory',
   async (params: { page?: number; per_page?: number; type?: string; search?: string } = {}) => {
-    const response = await axios.get('/admin/inventory', { 
+    const response = await api.get('/admin/inventory', { 
       params,
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
@@ -64,7 +64,7 @@ export const fetchInventory = createAsyncThunk(
 export const fetchInventoryItem = createAsyncThunk(
   'inventory/fetchItem',
   async (id: number) => {
-    const response = await axios.get(`/admin/inventory/${id}`);
+    const response = await api.get(`/admin/inventory/${id}`);
     return response.data.data;
   }
 );
@@ -72,7 +72,7 @@ export const fetchInventoryItem = createAsyncThunk(
 export const createInventoryItem = createAsyncThunk(
   'inventory/createItem',
   async (itemData: Partial<InventoryItem>) => {
-    const response = await axios.post('/admin/inventory', itemData);
+    const response = await api.post('/admin/inventory', itemData);
     return response.data.data;
   }
 );
@@ -80,7 +80,7 @@ export const createInventoryItem = createAsyncThunk(
 export const updateInventoryItem = createAsyncThunk(
   'inventory/updateItem',
   async ({ id, data }: { id: number; data: Partial<InventoryItem> }) => {
-    const response = await axios.put(`/admin/inventory/${id}`, data);
+    const response = await api.put(`/admin/inventory/${id}`, data);
     return response.data.data;
   }
 );
@@ -88,7 +88,7 @@ export const updateInventoryItem = createAsyncThunk(
 export const adjustStock = createAsyncThunk(
   'inventory/adjustStock',
   async ({ id, quantity_change, reason, notes }: { id: number; quantity_change: number; reason: string; notes?: string }) => {
-    const response = await axios.post(`/admin/inventory/${id}/adjust`, { quantity_change, reason, notes });
+    const response = await api.post(`/admin/inventory/${id}/adjust`, { quantity_change, reason, notes });
     return response.data.data;
   }
 );
@@ -96,7 +96,7 @@ export const adjustStock = createAsyncThunk(
 export const fetchItemsNeedingReorder = createAsyncThunk(
   'inventory/needsReorder',
   async () => {
-    const response = await axios.get('/admin/inventory/needs-reorder');
+    const response = await api.get('/admin/inventory/needs-reorder');
     return response.data.data;
   }
 );
@@ -104,7 +104,7 @@ export const fetchItemsNeedingReorder = createAsyncThunk(
 export const deleteInventoryItem = createAsyncThunk(
   'inventory/deleteItem',
   async (id: number) => {
-    await axios.delete(`/admin/inventory/${id}`);
+    await api.delete(`/admin/inventory/${id}`);
     return id;
   }
 );

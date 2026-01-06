@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '@/axios';
 
 export interface Expense {
   id: number;
@@ -63,7 +63,7 @@ export const fetchExpenses = createAsyncThunk(
     sort_field?: string;
     sort_direction?: string;
   } = {}) => {
-    const response = await axios.get('/admin/accounting/expenses', { 
+    const response = await api.get('/admin/accounting/expenses', { 
       params,
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
@@ -76,7 +76,7 @@ export const fetchExpenses = createAsyncThunk(
 export const fetchExpense = createAsyncThunk(
   'expenses/fetchExpense',
   async (id: number) => {
-    const response = await axios.get(`/admin/accounting/expenses/${id}`);
+    const response = await api.get(`/admin/accounting/expenses/${id}`);
     return response.data.data;
   }
 );
@@ -84,7 +84,7 @@ export const fetchExpense = createAsyncThunk(
 export const createExpense = createAsyncThunk(
   'expenses/createExpense',
   async (expenseData: Partial<Expense>) => {
-    const response = await axios.post('/admin/accounting/expenses', expenseData);
+    const response = await api.post('/admin/accounting/expenses', expenseData);
     return response.data.data;
   }
 );
@@ -92,7 +92,7 @@ export const createExpense = createAsyncThunk(
 export const updateExpense = createAsyncThunk(
   'expenses/updateExpense',
   async ({ id, data }: { id: number; data: Partial<Expense> }) => {
-    const response = await axios.put(`/admin/accounting/expenses/${id}`, data);
+    const response = await api.put(`/admin/accounting/expenses/${id}`, data);
     return response.data.data;
   }
 );
@@ -100,7 +100,7 @@ export const updateExpense = createAsyncThunk(
 export const deleteExpense = createAsyncThunk(
   'expenses/deleteExpense',
   async (id: number) => {
-    await axios.delete(`/admin/accounting/expenses/${id}`);
+    await api.delete(`/admin/accounting/expenses/${id}`);
     return id;
   }
 );

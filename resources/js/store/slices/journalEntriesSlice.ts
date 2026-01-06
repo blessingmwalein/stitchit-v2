@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '@/axios';
 
 export interface JournalEntryLine {
   id: number;
@@ -81,7 +81,7 @@ export const fetchJournalEntries = createAsyncThunk(
     sort_field?: string;
     sort_direction?: string;
   } = {}) => {
-    const response = await axios.get('/admin/accounting/journal-entries', {
+    const response = await api.get('/admin/accounting/journal-entries', {
       params,
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
@@ -94,7 +94,7 @@ export const fetchJournalEntries = createAsyncThunk(
 export const fetchJournalEntry = createAsyncThunk(
   'journalEntries/fetchJournalEntry',
   async (id: number) => {
-    const response = await axios.get(`/admin/accounting/journal-entries/${id}`, {
+    const response = await api.get(`/admin/accounting/journal-entries/${id}`, {
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
       },
@@ -106,7 +106,7 @@ export const fetchJournalEntry = createAsyncThunk(
 export const voidJournalEntry = createAsyncThunk(
   'journalEntries/voidJournalEntry',
   async (id: number) => {
-    const response = await axios.post(`/admin/accounting/journal-entries/${id}/void`);
+    const response = await api.post(`/admin/accounting/journal-entries/${id}/void`);
     return response.data;
   }
 );

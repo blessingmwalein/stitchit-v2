@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '@/axios';
 
 export interface ProductionJob {
   id: number;
@@ -82,7 +82,7 @@ const initialState: ProductionState = {
 export const fetchProductionJobs = createAsyncThunk(
   'production/fetchJobs',
   async (params: { page?: number; per_page?: number; state?: string; assigned_to?: number; search?: string } = {}) => {
-    const response = await axios.get('/admin/production', { 
+    const response = await api.get('/admin/production', { 
       params,
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
@@ -95,7 +95,7 @@ export const fetchProductionJobs = createAsyncThunk(
 export const fetchProductionJob = createAsyncThunk(
   'production/fetchJob',
   async (id: number) => {
-    const response = await axios.get(`/admin/production/${id}`);
+    const response = await api.get(`/admin/production/${id}`);
     return response.data.data;
   }
 );
@@ -103,7 +103,7 @@ export const fetchProductionJob = createAsyncThunk(
 export const createProductionJob = createAsyncThunk(
   'production/createJob',
   async (jobData: any) => {
-    const response = await axios.post('/admin/production', jobData);
+    const response = await api.post('/admin/production', jobData);
     return response.data.data;
   }
 );
@@ -111,7 +111,7 @@ export const createProductionJob = createAsyncThunk(
 export const updateProductionJob = createAsyncThunk(
   'production/updateJob',
   async ({ id, data }: { id: number; data: any }) => {
-    const response = await axios.put(`/admin/production/${id}`, data);
+    const response = await api.put(`/admin/production/${id}`, data);
     return response.data.data;
   }
 );
@@ -119,7 +119,7 @@ export const updateProductionJob = createAsyncThunk(
 export const transitionJobState = createAsyncThunk(
   'production/transitionState',
   async ({ id, state }: { id: number; state: string }) => {
-    const response = await axios.post(`/admin/production/${id}/transition`, { state });
+    const response = await api.post(`/admin/production/${id}/transition`, { state });
     return response.data.data;
   }
 );
@@ -127,7 +127,7 @@ export const transitionJobState = createAsyncThunk(
 export const allocateMaterials = createAsyncThunk(
   'production/allocateMaterials',
   async ({ id, materials }: { id: number; materials: any[] }) => {
-    const response = await axios.post(`/admin/production/${id}/allocate`, { materials });
+    const response = await api.post(`/admin/production/${id}/allocate`, { materials });
     return response.data.data;
   }
 );
@@ -135,7 +135,7 @@ export const allocateMaterials = createAsyncThunk(
 export const recordConsumption = createAsyncThunk(
   'production/recordConsumption',
   async ({ id, consumptionData }: { id: number; consumptionData: any }) => {
-    const response = await axios.post(`/admin/production/${id}/consume`, consumptionData);
+    const response = await api.post(`/admin/production/${id}/consume`, consumptionData);
     return response.data.data;
   }
 );
@@ -143,7 +143,7 @@ export const recordConsumption = createAsyncThunk(
 export const assignJob = createAsyncThunk(
   'production/assignJob',
   async ({ id, user_id }: { id: number; user_id: number }) => {
-    const response = await axios.post(`/admin/production/${id}/assign`, { user_id });
+    const response = await api.post(`/admin/production/${id}/assign`, { user_id });
     return response.data.data;
   }
 );
@@ -151,7 +151,7 @@ export const assignJob = createAsyncThunk(
 export const deleteProductionJob = createAsyncThunk(
   'production/deleteJob',
   async (id: number) => {
-    await axios.delete(`/admin/production/${id}`);
+    await api.delete(`/admin/production/${id}`);
     return id;
   }
 );

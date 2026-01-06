@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '@/axios';
 
 export interface PurchaseOrder {
   id: number;
@@ -50,7 +50,7 @@ const initialState: PurchasesState = {
 export const fetchPurchases = createAsyncThunk(
   'purchases/fetchPurchases',
   async (params: { page?: number; per_page?: number; state?: string; supplier_id?: number; search?: string } = {}) => {
-    const response = await axios.get('/admin/purchases', { 
+    const response = await api.get('/admin/purchases', { 
       params,
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
@@ -63,7 +63,7 @@ export const fetchPurchases = createAsyncThunk(
 export const fetchPurchaseOrder = createAsyncThunk(
   'purchases/fetchPurchaseOrder',
   async (id: number) => {
-    const response = await axios.get(`/admin/purchases/${id}`);
+    const response = await api.get(`/admin/purchases/${id}`);
     return response.data.data;
   }
 );
@@ -71,7 +71,7 @@ export const fetchPurchaseOrder = createAsyncThunk(
 export const createPurchaseOrder = createAsyncThunk(
   'purchases/createPurchaseOrder',
   async (poData: any) => {
-    const response = await axios.post('/admin/purchases', poData);
+    const response = await api.post('/admin/purchases', poData);
     return response.data.data;
   }
 );
@@ -79,7 +79,7 @@ export const createPurchaseOrder = createAsyncThunk(
 export const updatePurchaseOrder = createAsyncThunk(
   'purchases/updatePurchaseOrder',
   async ({ id, data }: { id: number; data: any }) => {
-    const response = await axios.put(`/admin/purchases/${id}`, data);
+    const response = await api.put(`/admin/purchases/${id}`, data);
     return response.data.data;
   }
 );
@@ -87,7 +87,7 @@ export const updatePurchaseOrder = createAsyncThunk(
 export const sendPurchaseOrder = createAsyncThunk(
   'purchases/sendPurchaseOrder',
   async (id: number) => {
-    const response = await axios.post(`/admin/purchases/${id}/send`);
+    const response = await api.post(`/admin/purchases/${id}/send`);
     return response.data.data;
   }
 );
@@ -95,7 +95,7 @@ export const sendPurchaseOrder = createAsyncThunk(
 export const receiveGoods = createAsyncThunk(
   'purchases/receiveGoods',
   async ({ id, receiptData }: { id: number; receiptData: any }) => {
-    const response = await axios.post(`/admin/purchases/${id}/receive`, receiptData);
+    const response = await api.post(`/admin/purchases/${id}/receive`, receiptData);
     return response.data.data;
   }
 );
@@ -103,7 +103,7 @@ export const receiveGoods = createAsyncThunk(
 export const closePurchaseOrder = createAsyncThunk(
   'purchases/closePurchaseOrder',
   async (id: number) => {
-    const response = await axios.post(`/admin/purchases/${id}/close`);
+    const response = await api.post(`/admin/purchases/${id}/close`);
     return response.data.data;
   }
 );
@@ -111,7 +111,7 @@ export const closePurchaseOrder = createAsyncThunk(
 export const deletePurchaseOrder = createAsyncThunk(
   'purchases/deletePurchaseOrder',
   async (id: number) => {
-    await axios.delete(`/admin/purchases/${id}`);
+    await api.delete(`/admin/purchases/${id}`);
     return id;
   }
 );
