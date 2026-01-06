@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm, Head } from '@inertiajs/react';
-import AdminLayout from '@/Layouts/AdminLayout';
+import AppLayout from '@/layouts/app-layout';
 
 export default function Index({ formulas }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -19,12 +19,12 @@ export default function Index({ formulas }) {
     };
 
     return (
-        <AdminLayout>
+        <AppLayout>
             <Head title="Rug Pricing Formulas" />
 
-            <template #header>
-                <h2 className="font-semibold text-xl text-gray-800 leading-tight">Rug Pricing Formulas</h2>
-            </template>
+            <div className="p-6">
+                <h1 className="text-3xl font-bold">Rug Pricing Formulas</h1>
+            </div>
 
             <div className="py-12">
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -111,6 +111,6 @@ export default function Index({ formulas }) {
                     </div>
                 </div>
             </div>
-        </AdminLayout>
+        </AppLayout>
     );
 }
