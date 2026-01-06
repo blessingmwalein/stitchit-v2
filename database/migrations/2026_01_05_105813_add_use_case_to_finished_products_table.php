@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('finished_products', function (Blueprint $table) {
-            $table->enum('use_case', ['Modern', 'Corporate', 'Home', 'Hotel', 'School'])->nullable();
-        });
+        if (! Schema::hasColumn('finished_products', 'use_case')) {
+            Schema::table('finished_products', function (Blueprint $table) {
+                $table->enum('use_case', ['Modern', 'Corporate', 'Home', 'Hotel', 'School'])->nullable();
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('finished_products', function (Blueprint $table) {
-            //
-        });
+        if (Schema::hasColumn('finished_products', 'use_case')) {
+            Schema::table('finished_products', function (Blueprint $table) {
+                $table->dropColumn('use_case');
+            });
+        }
     }
 };
