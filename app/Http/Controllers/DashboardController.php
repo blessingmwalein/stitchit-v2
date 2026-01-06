@@ -20,7 +20,7 @@ class DashboardController extends Controller
         // Get counts
         $totalClients = Client::count();
         $activeOrders = Order::whereIn('state', ['draft', 'confirmed', 'in_production'])->count();
-        $inProduction = ProductionJob::whereIn('state', ['pending', 'in_progress'])->count();
+        $inProduction = ProductionJob::whereNotIn('state', ['completed', 'archived', 'cancelled'])->count();
         $lowStockItems = InventoryItem::where('is_active', true)
             ->whereRaw('current_stock <= reorder_point')
             ->count();
@@ -42,7 +42,7 @@ class DashboardController extends Controller
             });
 
         $recentProduction = ProductionJob::with('orderItem.order.client')
-            ->whereIn('state', ['pending', 'in_progress'])
+            ->whereNotIn('state', ['completed', 'archived', 'cancelled'])
             ->latest()
             ->take(5)
             ->get()
