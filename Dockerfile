@@ -8,7 +8,7 @@ USER root
 # Install Node.js 20 and PHP extensions
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
-    && install-php-extensions exif \
+    && install-php-extensions exif gd \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
