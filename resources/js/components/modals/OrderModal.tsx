@@ -9,6 +9,7 @@ import axios from 'axios';
 import { Badge } from '@/components/ui/badge';
 import { Upload, X, Calculator } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Client {
   id: number;
@@ -45,6 +46,7 @@ interface OrderItem {
   material_cost?: number;
   profit_amount?: number;
   cost_per_sqcm?: number;
+  is_manual_total?: boolean;
 }
 
 interface Order {
@@ -114,7 +116,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
     if (open) {
       // Fetch recipes
       fetchRecipes();
-      
+
       if (order) {
         // Edit mode - prefill with existing order data
         setStep(2);
@@ -125,7 +127,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
             phone: order.client.phone,
           });
         }
-        
+
         if (order.items && order.items.length > 0) {
           setOrderItems(order.items.map(item => ({
             id: item.id.toString(),
@@ -162,9 +164,9 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
           },
         ]);
       }
-      
+
       setErrors({});
-      
+
       if (preselectedClientId && !order) {
         fetchClient(preselectedClientId);
       } else if (!order) {
@@ -239,8 +241,8 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
       area_sqm = (width * height) / 10.764;
     }
 
-    const total_price = area_sqm * quantity * plannedPrice;
-    const rounded_total = Math.round(total_price / 10) * 10;
+    const total_price = item.is_manual_total ? (item.total_price || 0) : area_sqm * quantity * plannedPrice;
+    const rounded_total = item.is_manual_total ? total_price : Math.round(total_price / 10) * 10;
 
     return {
       ...item,
@@ -249,19 +251,24 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
     };
   };
 
-  const handleItemChange = (itemId: string, field: keyof OrderItem, value: string | number) => {
+  const handleItemChange = (itemId: string, field: keyof OrderItem, value: string | number | boolean) => {
     setOrderItems((prev) =>
       prev.map((item) => {
         if (item.id === itemId) {
           const updated = { ...item, [field]: value };
-          
+
+          // If switching to manual total, preserve current total price if it exists
+          if (field === 'is_manual_total' && value === true && !item.total_price) {
+            // No action needed as calculateItemTotals will be called below
+          }
+
           // If recipe is selected, set default profit percentage and auto-calculate
           if (field === 'recipe_id' && value) {
             updated.profit_percentage = 73; // Default profit margin
             calculatePriceFromRecipe(itemId, value as number);
             return updated as OrderItem;
           }
-          
+
           // If dimensions or unit changed and recipe is selected, recalculate
           if (item.recipe_id && (field === 'width' || field === 'height' || field === 'unit')) {
             // Update the value first
@@ -272,7 +279,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
             }
             return itemWithUpdate;
           }
-          
+
           return calculateItemTotals(updated) as OrderItem;
         }
         return item;
@@ -293,7 +300,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
     // Convert dimensions to cm for the API
     let widthCm = item.width;
     let heightCm = item.height;
-    
+
     if (item.unit === 'm') {
       widthCm = item.width * 100;
       heightCm = item.height * 100;
@@ -329,7 +336,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
         const pricePerSqm = result.final_price / result.area_sqcm * 10000;
         const costPerSqcm = result.total_material_cost / result.area_sqcm;
         const profitPerSqcm = result.final_price / result.area_sqcm - costPerSqcm;
-        
+
         setOrderItems((prev) =>
           prev.map((i) => {
             if (i.id === itemId) {
@@ -356,7 +363,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
       setOrderItems((prev) =>
         prev.map((i) => i.id === itemId ? { ...i, calculating: false } : i)
       );
-      
+
       dispatch(showNotification({
         type: 'error',
         message: error.response?.data?.message || 'Failed to calculate price',
@@ -453,8 +460,14 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
       if (item.quantity <= 0) {
         newErrors[`item_${index}_quantity`] = 'Quantity must be greater than 0';
       }
-      if (item.planned_price <= 0) {
-        newErrors[`item_${index}_unit_price`] = 'Unit price must be greater than 0';
+      if (item.is_manual_total) {
+        if (item.total_price <= 0) {
+          newErrors[`item_${index}_total_price`] = 'Total price must be greater than 0';
+        }
+      } else {
+        if (item.planned_price <= 0) {
+          newErrors[`item_${index}_unit_price`] = 'Unit price must be greater than 0';
+        }
       }
     });
 
@@ -492,7 +505,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
 
     try {
       const formData = new FormData();
-      
+
       if (!order) {
         // Only set client_id for new orders
         formData.append('client_id', selectedClient?.id?.toString() || '');
@@ -506,12 +519,12 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
         formData.append(`items[${index}][quantity]`, item.quantity.toString());
         // Submit total price (price per m² × area × quantity), not just price per m²
         formData.append(`items[${index}][planned_price]`, item.total_price.toString());
-        
+
         // Include existing image path if no new image uploaded
         if (item.existing_image_path && !item.design_image) {
           formData.append(`items[${index}][existing_image_path]`, item.existing_image_path);
         }
-        
+
         if (item.design_image) {
           formData.append(`items[${index}][design_image]`, item.design_image);
         }
@@ -718,7 +731,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
                     {item.recipe_id && (!item.width || !item.height) && (
                       <p className="text-xs text-amber-600">Enter width and height, then click Calculate</p>
                     )}
-                    
+
                     {/* Custom Profit Percentage */}
                     {item.recipe_id && (
                       <div className="grid grid-cols-2 gap-3 pt-2">
@@ -806,20 +819,60 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
                       )}
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor={`planned_price-${item.id}`}>Price per m² ($) *</Label>
-                      <Input
-                        id={`planned_price-${item.id}`}
-                        type="number"
-                        step="0.01"
-                        value={item.planned_price || ''}
-                        onChange={(e) => handleItemChange(item.id, 'planned_price', Number(e.target.value))}
-                        placeholder="50.00"
-                        className="rounded-xl"
-                      />
-                      {errors[`item_${index}_unit_price`] && (
-                        <p className="text-sm text-red-600">{errors[`item_${index}_unit_price`]}</p>
+                    <div className="space-y-4">
+                      {!item.recipe_id && (
+                        <div className="flex items-center space-x-2 bg-gray-50 p-2 rounded-lg border border-dashed border-gray-300">
+                          <Checkbox
+                            id={`manual-total-${item.id}`}
+                            checked={item.is_manual_total}
+                            onCheckedChange={(checked) => {
+                              handleItemChange(item.id, 'is_manual_total', !!checked);
+                            }}
+                          />
+                          <Label
+                            htmlFor={`manual-total-${item.id}`}
+                            className="text-sm font-medium leading-none cursor-pointer"
+                          >
+                            Enter Total Price Manually
+                          </Label>
+                        </div>
                       )}
+
+                      <div className="space-y-2">
+                        {item.is_manual_total ? (
+                          <>
+                            <Label htmlFor={`total_price-${item.id}`}>Total Price ($) *</Label>
+                            <Input
+                              id={`total_price-${item.id}`}
+                              type="number"
+                              step="0.01"
+                              value={item.total_price || ''}
+                              onChange={(e) => handleItemChange(item.id, 'total_price', Number(e.target.value))}
+                              placeholder="500.00"
+                              className="rounded-xl border-[#FF8A50] focus:ring-[#FF8A50]"
+                            />
+                            {errors[`item_${index}_total_price`] && (
+                              <p className="text-sm text-red-600">{errors[`item_${index}_total_price`]}</p>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <Label htmlFor={`planned_price-${item.id}`}>Price per m² ($) *</Label>
+                            <Input
+                              id={`planned_price-${item.id}`}
+                              type="number"
+                              step="0.01"
+                              value={item.planned_price || ''}
+                              onChange={(e) => handleItemChange(item.id, 'planned_price', Number(e.target.value))}
+                              placeholder="50.00"
+                              className="rounded-xl"
+                            />
+                            {errors[`item_${index}_unit_price`] && (
+                              <p className="text-sm text-red-600">{errors[`item_${index}_unit_price`]}</p>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
 

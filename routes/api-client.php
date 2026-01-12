@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Client\GoogleAuthController;
 use App\Http\Controllers\Api\Client\OrderController;
 use App\Http\Controllers\Api\Client\FinishedProductController;
 use App\Http\Controllers\Api\ClientRugPricingController;
+use App\Http\Controllers\Api\SendMailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,6 +44,7 @@ Route::get('/finished-products/{id}', [FinishedProductController::class, 'show']
 Route::post('/rug-pricing/calculate', [ClientRugPricingController::class, 'calculatePrice']);
 Route::get('/rug-pricing/breakdown', [ClientRugPricingController::class, 'getCostBreakdown']);
 Route::get('/rug-pricing/recipes', [ClientRugPricingController::class, 'getRecipes']);
+Route::post('/send-email', [SendMailController::class, 'send']);
 
 // Protected client routes
 Route::middleware('auth:sanctum')->group(function () {
