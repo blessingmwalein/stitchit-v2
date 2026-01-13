@@ -503,13 +503,13 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
     }
 
     // Check if order is in later states, but allow Production updates as requested
-    if (order && ['DISPATCHED', 'CLOSED', 'ARCHIVED'].includes(order.state)) {
-      dispatch(showNotification({
-        type: 'error',
-        message: 'Cannot edit orders that are dispatched, closed or archived',
-      }));
-      return;
-    }
+    // if (order && ['DISPATCHED', 'CLOSED', 'ARCHIVED'].includes(order.state)) {
+    //   dispatch(showNotification({
+    //     type: 'error',
+    //     message: 'Cannot edit orders that are dispatched, closed or archived',
+    //   }));
+    //   return;
+    // }
 
     setLoading(true);
 
