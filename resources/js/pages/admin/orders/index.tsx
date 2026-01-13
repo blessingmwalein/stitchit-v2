@@ -187,10 +187,8 @@ export default function OrdersIndex() {
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                if (canEdit) {
-                  setSelectedOrderForEdit(row);
-                  setShowEditModal(true);
-                }
+                setSelectedOrderForEdit(row);
+                setShowEditModal(true);
               }}
               // disabled={!canEdit}
               className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
