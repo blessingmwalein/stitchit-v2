@@ -128,13 +128,13 @@ class OrderController extends Controller
         }
 
         // Prevent editing orders in production or later stages
-        $restrictedStates = ['IN_PRODUCTION', 'READY_FOR_DISPATCH', 'DISPATCHED', 'CLOSED', 'ARCHIVED'];
-        if (in_array($order->state, $restrictedStates)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot edit orders that are in production or later stages.',
-            ], 422);
-        }
+        // $restrictedStates = ['IN_PRODUCTION', 'READY_FOR_DISPATCH', 'DISPATCHED', 'CLOSED', 'ARCHIVED'];
+        // if (in_array($order->state, $restrictedStates)) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Cannot edit orders that are in production or later stages.',
+        //     ], 422);
+        // }
 
         $validated = $request->validate([
             'notes' => 'nullable|string',
