@@ -71,9 +71,24 @@ class ProductionController extends Controller
         try {
             $job = $this->productionService->create($validated);
 
+            if ($request->wantsJson() && !$request->header('X-Inertia')) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Production job created successfully.',
+                    'data' => $job,
+                ]);
+            }
+
             return redirect()->route('admin.production.index')
                 ->with('success', 'Production job created successfully.');
         } catch (\Exception $e) {
+            if ($request->wantsJson() && !$request->header('X-Inertia')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
             return back()
                 ->withErrors(['error' => $e->getMessage()])
                 ->withInput();

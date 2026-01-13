@@ -50,7 +50,7 @@ export function StartProductionModal({ open, onClose, orderId, orderReference, i
       if (convertAll) {
         // Convert all items
         await axios.post(`/admin/orders/${orderId}/convert-to-production`);
-        
+
         toast({
           title: 'Success',
           description: `All items from order ${orderReference} converted to production`,
@@ -70,20 +70,25 @@ export function StartProductionModal({ open, onClose, orderId, orderReference, i
           return;
         }
 
-        await axios.post('/admin/production', {
+
+        const response = await axios.post('/admin/production', {
           order_item_id: parseInt(selectedItemId),
           planned_start_date: plannedStartDate ? plannedStartDate.toISOString().split('T')[0] : null,
           planned_end_date: plannedEndDate ? plannedEndDate.toISOString().split('T')[0] : null,
           notes: notes || null,
         });
 
-        toast({
-          title: 'Success',
-          description: 'Production job created successfully',
-        });
+        if (response.data && response.data.success) {
+          toast({
+            title: 'Success',
+            description: 'Production job created successfully',
+          });
 
-        // Redirect to production page
-        router.visit('/admin/production');
+          // Redirect to production page with a slight delay to allow toast to be seen/state to settle
+          // Inertia router.visit might clear toasts if they are not persisted in flash session
+          // forcing a hard reload or just using inertia visit
+          router.visit('/admin/production');
+        }
       }
 
       onSuccess?.();
@@ -126,11 +131,10 @@ export function StartProductionModal({ open, onClose, orderId, orderReference, i
               <button
                 type="button"
                 onClick={() => setConvertAll(false)}
-                className={`p-4 border-2 rounded-lg transition-all ${
-                  !convertAll
+                className={`p-4 border-2 rounded-lg transition-all ${!convertAll
                     ? 'border-[#FF8A50] bg-orange-50 dark:bg-orange-950/20 text-[#FF8A50]'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <Package className="h-5 w-5 mx-auto mb-2" />
                 <span className="font-medium">Single Item</span>
@@ -139,11 +143,10 @@ export function StartProductionModal({ open, onClose, orderId, orderReference, i
               <button
                 type="button"
                 onClick={() => setConvertAll(true)}
-                className={`p-4 border-2 rounded-lg transition-all ${
-                  convertAll
+                className={`p-4 border-2 rounded-lg transition-all ${convertAll
                     ? 'border-[#FF8A50] bg-orange-50 dark:bg-orange-950/20 text-[#FF8A50]'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                }`}
+                  }`}
               >
                 <Package className="h-5 w-5 mx-auto mb-2" />
                 <span className="font-medium">All Items</span>
@@ -276,8 +279,8 @@ export function StartProductionModal({ open, onClose, orderId, orderReference, i
             <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading || (!convertAll && !selectedItemId)}
               className="bg-[#FF8A50] hover:bg-[#FF9B71]"
             >

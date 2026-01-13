@@ -65,9 +65,9 @@ export default function OrdersIndex() {
     const newDirection = sortField === field && sortDirection === 'asc' ? 'desc' : 'asc';
     setSortField(field);
     setSortDirection(newDirection);
-    dispatch(fetchOrders({ 
-      sort_by: field, 
-      sort_direction: newDirection 
+    dispatch(fetchOrders({
+      sort_by: field,
+      sort_direction: newDirection
     }));
   };
 
@@ -167,7 +167,7 @@ export default function OrdersIndex() {
       header: 'Actions',
       accessor: (row) => {
         const canEdit = !['IN_PRODUCTION', 'READY_FOR_DISPATCH', 'DISPATCHED', 'CLOSED', 'ARCHIVED'].includes(row.state);
-        
+
         return (
           <div className="flex gap-2 justify-end">
             <Button
@@ -192,7 +192,7 @@ export default function OrdersIndex() {
                   setShowEditModal(true);
                 }
               }}
-              disabled={!canEdit}
+              // disabled={!canEdit}
               className="h-9 w-9 p-0 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               title={canEdit ? 'Edit Order' : 'Cannot edit orders in production or later'}
             >
@@ -231,21 +231,21 @@ export default function OrdersIndex() {
               </p>
             </div>
             <Button onClick={() => setShowCreateModal(true)} className="rounded-full">
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                New Order
-              </Button>
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              New Order
+            </Button>
           </div>
 
           {/* Filters Card */}
@@ -295,8 +295,8 @@ export default function OrdersIndex() {
                 className="max-w-xs"
               />
               {(searchQuery || stateFilter || referenceFilter || clientNameFilter || clientEmailFilter) && (
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="rounded-full"
                   onClick={() => {
                     setSearchQuery('');

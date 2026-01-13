@@ -12,12 +12,12 @@ import { useAppDispatch } from '@/store/hooks';
 import { showNotification } from '@/store/slices/uiSlice';
 import { formatDate } from '@/lib/utils';
 import axios from 'axios';
-import { 
-  Calendar, 
-  User, 
-  Package, 
-  DollarSign, 
-  CreditCard, 
+import {
+  Calendar,
+  User,
+  Package,
+  DollarSign,
+  CreditCard,
   TrendingUp,
   FileText,
   CheckCircle,
@@ -119,7 +119,7 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
     open: false,
     title: '',
     description: '',
-    action: async () => {},
+    action: async () => { },
     variant: 'default',
   });
 
@@ -233,11 +233,11 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
     switch (order.state) {
       case 'DRAFT':
         transitions.push({ state: 'PENDING_DEPOSIT', label: 'Request Deposit', variant: 'default' });
-        transitions.push({ state: 'ARCHIVED', label: 'Archive', variant: 'destructive' });
+        // transitions.push({ state: 'ARCHIVED', label: 'Archive', variant: 'destructive' });
         break;
       case 'PENDING_DEPOSIT':
         transitions.push({ state: 'DEPOSIT_PAID', label: 'Mark Deposit Paid', variant: 'default' });
-        transitions.push({ state: 'ARCHIVED', label: 'Archive', variant: 'destructive' });
+        // transitions.push({ state: 'ARCHIVED', label: 'Archive', variant: 'destructive' });
         break;
       case 'DEPOSIT_PAID':
         // Start Production handled by modal, not transition
@@ -291,13 +291,13 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
                   </SheetTitle>
                 </SheetHeader>
               </div>
-              
+
               {/* Action Buttons - Top Right */}
               <div className="flex gap-2">
                 {/* Download PDF - Show after deposit paid */}
-                {['DEPOSIT_PAID', 'IN_PRODUCTION', 'READY_FOR_DISPATCH', 'DISPATCHED', 'CLOSED'].includes(order.state) && (
-                  <Button 
-                    onClick={handleDownloadPDF} 
+                {['DEPOSIT_PAID', 'IN_PRODUCTION', 'READY_FOR_DISPATCH', 'DISPATCHED', 'CLOSED', 'PENDING_DEPOSIT'].includes(order.state) && (
+                  <Button
+                    onClick={handleDownloadPDF}
                     size="sm"
                     variant="outline"
                     className="border-2"
@@ -306,11 +306,11 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
                     Download PDF
                   </Button>
                 )}
-                
+
                 {/* Start Production - Show when deposit paid */}
                 {order.state === 'DEPOSIT_PAID' && (
-                  <Button 
-                    onClick={handleConvertToProduction} 
+                  <Button
+                    onClick={handleConvertToProduction}
                     size="sm"
                     className="bg-purple-600 hover:bg-purple-700"
                   >
@@ -321,8 +321,8 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
 
                 {/* Record Payment */}
                 {Number(order.balance_due) > 0 && (
-                  <Button 
-                    onClick={() => setShowPaymentModal(true)} 
+                  <Button
+                    onClick={() => setShowPaymentModal(true)}
                     size="sm"
                     className="bg-green-600 hover:bg-green-700"
                   >
@@ -371,7 +371,7 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
                   <div className="flex justify-between">
                     <span className="text-sm text-gray-600">Name:</span>
                     <span className="font-medium">
-                      {order.client.nickname 
+                      {order.client.nickname
                         ? `${order.client.full_name} (${order.client.nickname})`
                         : order.client.full_name}
                     </span>
@@ -443,7 +443,7 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
                             </div>
                           )}
                         </div>
-                        
+
                         {/* Details Section */}
                         <div className="flex-1 space-y-2">
                           <div>
@@ -452,7 +452,7 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
                               <p className="text-xs text-gray-500">SKU: {item.sku}</p>
                             )}
                           </div>
-                          
+
                           <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-600">Dimensions:</span>
@@ -471,7 +471,7 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
                               <span className="font-medium">${Number(item.planned_price || 0).toFixed(2)}</span>
                             </div>
                           </div>
-                          
+
                           <div className="flex justify-between items-center pt-2 border-t">
                             <span className="text-sm text-gray-600">Item Total:</span>
                             <span className="text-lg font-bold text-[#FF8A50]">
@@ -482,7 +482,7 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
                       </div>
                     </div>
                   ))}
-                  
+
                   {/* Total Footer */}
                   <div className="rounded-lg bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-200 p-4">
                     <div className="flex justify-between items-center">
@@ -561,7 +561,7 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
                           <Badge variant="outline" className="text-xs">
                             {entry.type}
                           </Badge>
-                          <Badge 
+                          <Badge
                             variant={entry.status === 'POSTED' ? 'default' : 'secondary'}
                             className="text-xs"
                           >

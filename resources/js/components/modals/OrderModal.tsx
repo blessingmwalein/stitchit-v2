@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Upload, X, Calculator } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DatePicker } from '@/components/ui/date-picker';
 
 interface Client {
   id: number;
@@ -73,6 +74,7 @@ interface Order {
   notes?: string;
   delivery_address?: string;
   delivery_contact?: string;
+  estimated_delivery_date?: string;
   state: string;
 }
 
@@ -92,6 +94,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [estimatedDeliveryDate, setEstimatedDeliveryDate] = useState<Date | undefined>();
 
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([
@@ -128,6 +131,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
           });
         }
 
+
         if (order.items && order.items.length > 0) {
           setOrderItems(order.items.map(item => ({
             id: item.id.toString(),
@@ -144,10 +148,16 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
             existing_image_path: item.design_image_path,
           })));
         }
+
+
+        if (order.estimated_delivery_date) {
+          setEstimatedDeliveryDate(new Date(order.estimated_delivery_date));
+        }
       } else {
         // Create mode - reset form
         setStep(1);
         setSelectedClient(null);
+        setEstimatedDeliveryDate(undefined);
         setOrderItems([
           {
             id: Date.now().toString(),
@@ -251,7 +261,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
     };
   };
 
-  const handleItemChange = (itemId: string, field: keyof OrderItem, value: string | number | boolean) => {
+  const handleItemChange = (itemId: string, field: keyof OrderItem, value: string | number | boolean | null | undefined) => {
     setOrderItems((prev) =>
       prev.map((item) => {
         if (item.id === itemId) {
@@ -492,11 +502,11 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
       return;
     }
 
-    // Check if order is in production or later states
-    if (order && ['IN_PRODUCTION', 'READY_FOR_DISPATCH', 'DISPATCHED', 'CLOSED', 'ARCHIVED'].includes(order.state)) {
+    // Check if order is in later states, but allow Production updates as requested
+    if (order && ['DISPATCHED', 'CLOSED', 'ARCHIVED'].includes(order.state)) {
       dispatch(showNotification({
         type: 'error',
-        message: 'Cannot edit orders that are in production or later stages',
+        message: 'Cannot edit orders that are dispatched, closed or archived',
       }));
       return;
     }
@@ -509,6 +519,10 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
       if (!order) {
         // Only set client_id for new orders
         formData.append('client_id', selectedClient?.id?.toString() || '');
+      }
+
+      if (estimatedDeliveryDate) {
+        formData.append('estimated_delivery_date', estimatedDeliveryDate.toISOString().split('T')[0]);
       }
 
       orderItems.forEach((item, index) => {
@@ -606,7 +620,7 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
               <div className="rounded-lg border-2 border-[#FF8A50] bg-orange-50 p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-semibold text-gray-900">{selectedClient.display_name}</p>
+                    <p className="font-semibold text-gray-900">{selectedClient.full_name || selectedClient.display_name}</p>
                     <p className="text-sm text-gray-600">{selectedClient.phone}</p>
                   </div>
                   {!preselectedClientId && (
@@ -655,9 +669,20 @@ export function OrderModal({ open, onClose, preselectedClientId, order, onSucces
         {/* Step 2: Order Items */}
         {step === 2 && (
           <div className="space-y-4 py-4">
-            <div className="rounded-lg bg-gray-50 p-3">
-              <p className="text-sm text-gray-600">Client</p>
-              <p className="font-semibold text-gray-900">{selectedClient?.display_name}</p>
+            <div className="rounded-lg bg-gray-50 p-3 flex justify-between items-center">
+              <div>
+                <p className="text-sm text-gray-600">Client</p>
+                <p className="font-semibold text-gray-900">{selectedClient?.full_name || selectedClient?.display_name}</p>
+                <p className="text-xs text-gray-500">{selectedClient?.phone}</p>
+              </div>
+              <div className="w-[200px]">
+                <Label className="text-xs text-gray-500 mb-1 block">Estimated Delivery</Label>
+                <DatePicker
+                  date={estimatedDeliveryDate}
+                  onDateChange={setEstimatedDeliveryDate}
+                  placeholder="Delivery Date"
+                />
+              </div>
             </div>
 
             <div className="space-y-4">

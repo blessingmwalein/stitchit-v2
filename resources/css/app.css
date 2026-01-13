@@ -63,91 +63,124 @@
 
 :root {
     /* Very light background for glass effect */
-    --background: oklch(0.985 0.005 85); /* #FEFCFA - Almost white with slight warmth */
-    --foreground: oklch(0.25 0 0); /* #1A1A1A - Dark charcoal */
-    
+    --background: oklch(0.985 0.005 85);
+    /* #FEFCFA - Almost white with slight warmth */
+    --foreground: oklch(0.25 0 0);
+    /* #1A1A1A - Dark charcoal */
+
     /* Cards with white/transparent */
-    --card: oklch(1 0 0); /* Pure white cards */
+    --card: oklch(1 0 0);
+    /* Pure white cards */
     --card-foreground: oklch(0.25 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.25 0 0);
-    
+
     /* Brand Colors - Warm yellow/gold accents inspired by design */
-    --primary: oklch(0.35 0.02 85); /* #2D2D2D - Dark charcoal for primary buttons */
-    --primary-foreground: oklch(1 0 0); /* White text */
-    
+    --primary: oklch(0.35 0.02 85);
+    /* #2D2D2D - Dark charcoal for primary buttons */
+    --primary-foreground: oklch(1 0 0);
+    /* White text */
+
     /* Gold/Yellow accent color */
-    --accent: oklch(0.82 0.10 85); /* #F5C563 - Warm gold */
-    --accent-foreground: oklch(0.25 0 0); /* Dark text on gold */
-    
-    --secondary: oklch(0.97 0.005 85); /* Light cream */
+    --accent: oklch(0.82 0.10 85);
+    /* #F5C563 - Warm gold */
+    --accent-foreground: oklch(0.25 0 0);
+    /* Dark text on gold */
+
+    --secondary: oklch(0.97 0.005 85);
+    /* Light cream */
     --secondary-foreground: oklch(0.25 0 0);
-    
-    --muted: oklch(0.96 0.008 85); /* #F8F6F3 - Muted cream */
-    --muted-foreground: oklch(0.55 0 0); /* #737373 - Medium gray */
-    
-    --destructive: oklch(0.577 0.245 27.325); /* Red for errors */
+
+    --muted: oklch(0.96 0.008 85);
+    /* #F8F6F3 - Muted cream */
+    --muted-foreground: oklch(0.55 0 0);
+    /* #737373 - Medium gray */
+
+    --destructive: oklch(0.577 0.245 27.325);
+    /* Red for errors */
     --destructive-foreground: oklch(0.985 0 0);
-    
-    --border: oklch(0.94 0.003 85); /* #EDEDEB - Very subtle border */
-    --input: oklch(0.95 0.005 85); /* Slightly darker for inputs */
-    --ring: oklch(0.82 0.10 85); /* Gold focus ring */
-    
+
+    --border: oklch(0.94 0.003 85);
+    /* #EDEDEB - Very subtle border */
+    --input: oklch(0.95 0.005 85);
+    /* Slightly darker for inputs */
+    --ring: oklch(0.82 0.10 85);
+    /* Gold focus ring */
+
     /* Chart colors with warm palette */
-    --chart-1: oklch(0.82 0.10 85); /* Warm gold */
-    --chart-2: oklch(0.35 0.02 85); /* Dark charcoal */
-    --chart-3: oklch(0.65 0.12 160); /* Teal green */
-    --chart-4: oklch(0.75 0.15 65); /* Warm orange */
-    --chart-5: oklch(0.70 0.08 50); /* Coral */
-    
-    --radius: 0.875rem; /* 14px - Generous rounded corners */
-    
+    --chart-1: oklch(0.82 0.10 85);
+    /* Warm gold */
+    --chart-2: oklch(0.35 0.02 85);
+    /* Dark charcoal */
+    --chart-3: oklch(0.65 0.12 160);
+    /* Teal green */
+    --chart-4: oklch(0.75 0.15 65);
+    /* Warm orange */
+    --chart-5: oklch(0.70 0.08 50);
+    /* Coral */
+
+    --radius: 0.875rem;
+    /* 14px - Generous rounded corners */
+
     /* Sidebar with warm theme */
-    --sidebar: oklch(1 0 0); /* White sidebar */
+    --sidebar: oklch(1 0 0);
+    /* White sidebar */
     --sidebar-foreground: oklch(0.25 0 0);
-    --sidebar-primary: oklch(0.35 0.02 85); /* Dark primary */
+    --sidebar-primary: oklch(0.35 0.02 85);
+    /* Dark primary */
     --sidebar-primary-foreground: oklch(1 0 0);
-    --sidebar-accent: oklch(0.97 0.005 85); /* Light cream hover */
+    --sidebar-accent: oklch(0.97 0.005 85);
+    /* Light cream hover */
     --sidebar-accent-foreground: oklch(0.25 0 0);
     --sidebar-border: oklch(0.93 0.005 85);
     --sidebar-ring: oklch(0.82 0.10 85);
 }
 
 .dark {
-    --background: oklch(0.15 0 0); /* Very dark */
-    --foreground: oklch(0.98 0 0); /* Off-white */
-    --card: oklch(0.18 0 0); /* Dark card */
+    --background: oklch(0.15 0 0);
+    /* Very dark */
+    --foreground: oklch(0.98 0 0);
+    /* Off-white */
+    --card: oklch(0.18 0 0);
+    /* Dark card */
     --card-foreground: oklch(0.98 0 0);
     --popover: oklch(0.18 0 0);
     --popover-foreground: oklch(0.98 0 0);
-    
+
     /* Brand Colors - Adjusted for dark mode */
-    --primary: oklch(0.82 0.10 85); /* Gold accent */
-    --primary-foreground: oklch(0.15 0 0); /* Dark text on gold */
-    
-    --accent: oklch(0.75 0.12 85); /* Slightly darker gold for dark mode */
+    --primary: oklch(0.82 0.10 85);
+    /* Gold accent */
+    --primary-foreground: oklch(0.15 0 0);
+    /* Dark text on gold */
+
+    --accent: oklch(0.75 0.12 85);
+    /* Slightly darker gold for dark mode */
     --accent-foreground: oklch(0.98 0 0);
-    
+
     --secondary: oklch(0.25 0 0);
     --secondary-foreground: oklch(0.98 0 0);
-    
+
     --muted: oklch(0.25 0 0);
     --muted-foreground: oklch(0.65 0 0);
-    
+
     --destructive: oklch(0.55 0.20 27);
     --destructive-foreground: oklch(0.98 0 0);
-    
+
     --border: oklch(0.25 0 0);
     --input: oklch(0.25 0 0);
-    --ring: oklch(0.82 0.10 85); /* Gold ring */
-    
+    --ring: oklch(0.82 0.10 85);
+    /* Gold ring */
+
     /* Chart colors for dark mode */
-    --chart-1: oklch(0.82 0.10 85); /* Gold */
-    --chart-2: oklch(0.75 0.12 65); /* Orange */
-    --chart-3: oklch(0.65 0.12 160); /* Teal */
+    --chart-1: oklch(0.82 0.10 85);
+    /* Gold */
+    --chart-2: oklch(0.75 0.12 65);
+    /* Orange */
+    --chart-3: oklch(0.65 0.12 160);
+    /* Teal */
     --chart-4: oklch(0.70 0.15 45);
     --chart-5: oklch(0.68 0.12 50);
-    
+
     /* Sidebar for dark mode */
     --sidebar: oklch(0.18 0 0);
     --sidebar-foreground: oklch(0.98 0 0);
@@ -206,4 +239,61 @@
     .dark select {
         @apply bg-gray-800 border-gray-700 text-foreground;
     }
+}
+
+
+
+/* Custom animations */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+@keyframes grid-flow {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(40px);
+    }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+.animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Updated grid pattern for light theme with orange accent */
+.grid-pattern {
+    background-image: linear-gradient(to right, oklch(0.65 0.2 40 / 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, oklch(0.65 0.2 40 / 0.08) 1px, transparent 1px);
+    background-size: 40px 40px;
 }

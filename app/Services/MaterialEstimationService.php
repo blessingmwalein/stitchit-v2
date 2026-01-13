@@ -25,9 +25,33 @@ class MaterialEstimationService
      */
     public function estimateForJob(ProductionJob $job): Collection
     {
-        $width = $job->order_item->width; // cm
-        $height = $job->order_item->height; // cm
-        $quantity = $job->order_item->quantity;
+        // Ensure order item is loaded
+        if (!$job->relationLoaded('orderItem')) {
+            $job->load('orderItem');
+        }
+        
+        $orderItem = $job->order_item;
+        
+        if (!$orderItem) {
+             \Illuminate\Support\Facades\Log::error('Order Item not found for job', [
+                 'job_id' => $job->id,
+                 'order_item_id' => $job->order_item_id,
+                 'job_attributes' => $job->getAttributes()
+             ]);
+             
+             // Try to fetch manually to see if it exists
+             $orderItem = \App\Models\OrderItem::find($job->order_item_id);
+             
+             if ($orderItem) {
+                 $job->setRelation('orderItem', $orderItem);
+             } else {
+                 throw new \Exception("Order Item not found for Production Job #{$job->id} (Order Item ID: {$job->order_item_id}). Cannot estimate materials.");
+             }
+        }
+
+        $width = $orderItem->width; // cm
+        $height = $orderItem->height; // cm
+        $quantity = $orderItem->quantity;
 
         // Calculate area in square meters
         $areaSqm = ($width * $height) / 10000; // cm² to m²

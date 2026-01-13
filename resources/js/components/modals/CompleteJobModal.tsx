@@ -59,11 +59,23 @@ export function CompleteJobModal({ open, onClose, jobId, jobReference, onSuccess
       });
 
       // Create finished product
-      await axios.post(`/admin/finished-products/from-job/${jobId}`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      try {
+        await axios.post(`/admin/finished-products/from-job/${jobId}`, data, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      } catch (fpError: any) {
+        console.warn('Finished product creation warning:', fpError);
+        // User requested to proceed even if finished product was already created or fails
+        if (fpError.response?.status === 409 || fpError.response?.data?.message?.includes('exist')) {
+          toast({
+            title: 'Note',
+            description: 'Finished product already existed. Proceeding to complete job.',
+            variant: 'default', // Info/Warning
+          });
+        }
+      }
 
       // Transition job to completed
       await axios.post(`/admin/production/${jobId}/transition`, {
