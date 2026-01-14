@@ -320,7 +320,7 @@ export function OrderDetailDrawer({ open, onClose, orderId, onOrderUpdated }: Or
                 )}
 
                 {/* Record Payment */}
-                {Number(order.balance_due) > 0 && (
+                {Number(order.balance_due) >= 0 && (
                   <Button
                     onClick={() => setShowPaymentModal(true)}
                     size="sm"

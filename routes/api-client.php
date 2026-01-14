@@ -31,9 +31,7 @@ Route::prefix('auth')->group(function () {
 });
 
 // Public routes (no authentication required)
-// Orders
-Route::get('/orders', [OrderController::class, 'index']);
-Route::get('/orders/{id}', [OrderController::class, 'show']);
+// Orders - Public so guests can order
 Route::post('/orders', [OrderController::class, 'store']);
 
 // Finished Products
@@ -52,4 +50,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
 });

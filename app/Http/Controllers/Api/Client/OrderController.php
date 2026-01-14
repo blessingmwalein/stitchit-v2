@@ -23,8 +23,9 @@ class OrderController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        // Show all orders
-        $orders = Order::with(['items', 'payments'])
+        // Show all orders for logged in user
+        $orders = Order::where('client_id', $request->user()->id)
+            ->with(['items', 'payments'])
             ->withCount('items')
             ->latest()
             ->paginate(15);
@@ -52,8 +53,9 @@ class OrderController extends Controller
                             'width' => $item->width,
                             'height' => $item->height,
                             'quantity' => $item->quantity,
-                            'price_per_item' => $item->price_per_item,
-                            'total_price' => $item->total_price,
+                            'quantity' => $item->quantity,
+                            'price_per_item' => $item->planned_price,
+                            'total_price' => $item->planned_price * $item->quantity,
                             'design_image_url' => $item->design_image_url,
                         ];
                     }),
@@ -73,8 +75,9 @@ class OrderController extends Controller
      */
     public function show(Request $request, int $id): JsonResponse
     {
-        // Show any order
+        // Show any order belonging to user
         $order = Order::where('id', $id)
+            ->where('client_id', $request->user()->id)
             ->with(['items', 'payments', 'items.productionJobs'])
             ->firstOrFail();
 
@@ -99,8 +102,9 @@ class OrderController extends Controller
                         'width' => $item->width,
                         'height' => $item->height,
                         'quantity' => $item->quantity,
-                        'price_per_item' => $item->price_per_item,
-                        'total_price' => $item->total_price,
+                        'quantity' => $item->quantity,
+                        'price_per_item' => $item->planned_price,
+                        'total_price' => $item->planned_price * $item->quantity,
                         'design_image_url' => $item->design_image_url,
                         'production_status' => $item->productionJobs->first()?->state,
                     ];
@@ -137,13 +141,14 @@ class OrderController extends Controller
             $totalAmount = 0;
 
             // Create order items
-            foreach ($request->items as $itemData) {
-                $designImageUrl = null;
+            foreach ($request->items as $index => $itemData) {
+                $designImagePath = null;
                 
                 // Handle image upload if provided
-                if (isset($itemData['design_image']) && $itemData['design_image']) {
-                    $path = $itemData['design_image']->store('order-designs', 'public');
-                    $designImageUrl = Storage::url($path);
+                // Check if file exists in the request files array
+                if ($request->hasFile("items.{$index}.design_image")) {
+                    $image = $request->file("items.{$index}.design_image");
+                    $designImagePath = $image->store('order-designs', 'public');
                 }
 
                 // Use price calculated from frontend (via rug pricing calculator)
@@ -158,16 +163,16 @@ class OrderController extends Controller
                     'height' => $itemData['height'],
                     'quantity' => $itemData['quantity'],
                     'unit' => $itemData['unit'] ?? 'cm',
-                    'price_per_item' => $pricePerItem,
-                    'total_price' => $totalPrice,
-                    'design_image_url' => $designImageUrl,
+                    'planned_price' => $pricePerItem,
+                    'design_image_path' => $designImagePath,
                     'notes' => $itemData['notes'] ?? null,
                 ]);
             }
 
-            // Update order total
+            // Update order total and balance
             $order->update([
                 'total_amount' => $totalAmount,
+                'balance_due' => $totalAmount,
             ]);
 
             DB::commit();
